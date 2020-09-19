@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/MsSimConnect/v16/Browse.VC.opendb
+/.vs/MsSimConnect/v16/Browse.VC.db-wal
+/.vs/MsSimConnect/v16/Browse.VC.db-shm
