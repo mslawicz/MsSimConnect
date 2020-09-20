@@ -1,2 +1,0 @@
-C:\Users\marci\source\repos\MsSimConnect\Debug\MsSimConnect.exe
-C:\Users\marci\source\repos\MsSimConnect\Debug\MsSimConnect.pdb
