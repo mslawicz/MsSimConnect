@@ -1,6 +1,7 @@
 // MsSimConnect.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
+#include "Console.h"
 #include <Windows.h>
 #include <conio.h>
 #include "SimConnect.h"
@@ -9,8 +10,8 @@
 
 int main()
 {
-    std::cout << "MS SimConnect v1.0\n";
-    std::cout << "press Q to quit\n";
+    Console::getInstance().log(LogLevel::Always, "MS SimConnect v1.0");
+    Console::getInstance().log(LogLevel::Always, "press Q to quit");
 
     int key = 0;
     do

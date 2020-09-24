@@ -4,7 +4,7 @@ class Simulator
 public:
     Simulator(Simulator const&) = delete;
     Simulator& operator=(Simulator const&) = delete;
-    Simulator& getInstance();
+    static Simulator& getInstance();
 private:
     Simulator();
 };
