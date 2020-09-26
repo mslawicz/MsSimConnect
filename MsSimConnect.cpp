@@ -2,9 +2,7 @@
 //
 
 #include "Console.h"
-#include <Windows.h>
 #include <conio.h>
-#include "SimConnect.h"
 #include <iostream>
 
 
