@@ -1,4 +1,6 @@
 #include "Simulator.h"
+#include "Console.h"
+#include <chrono>
 
 Simulator& Simulator::getInstance()
 {
@@ -6,9 +8,28 @@ Simulator& Simulator::getInstance()
     return instance;
 }
 
-Simulator::Simulator()
+Simulator::Simulator() :
+    handlerThread(&Simulator::handler, this)
 {
+    Console::getInstance().log(LogLevel::Debug, "Simulator object created");
 }
+
+Simulator::~Simulator()
+{
+    handlerThread.join();
+}
+
+// simulator handler function
+void Simulator::handler(void)
+{
+    static int cnt = 0; //XXX for test only
+    while (cnt++ < 10)
+    {
+        std::cout << "." << std::flush;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
 // dispatch data from simulator
 void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 {

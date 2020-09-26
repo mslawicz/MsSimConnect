@@ -23,7 +23,7 @@ public:
     void log(LogLevel level, std::string message);
 private:
     Console();
-    LogLevel currentLevel{ LogLevel::Info };
+    LogLevel currentLevel{ LogLevel::Debug };
     const std::unordered_map<LogLevel, std::string> levelText
     {
         {LogLevel::None, ""},

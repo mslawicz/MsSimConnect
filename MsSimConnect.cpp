@@ -2,6 +2,7 @@
 //
 
 #include "Console.h"
+#include "Simulator.h"
 #include <conio.h>
 #include <iostream>
 
@@ -10,6 +11,8 @@ int main()
 {
     Console::getInstance().log(LogLevel::Always, "MS SimConnect v1.0");
     Console::getInstance().log(LogLevel::Always, "press Q to quit");
+
+    Simulator::getInstance().doNothing();
 
     int key = 0;
     do
