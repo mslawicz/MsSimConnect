@@ -13,6 +13,7 @@ Console& Console::getInstance()
 
 Console::Console()
 {
+    registerCommand("quit", "quit from program", std::bind(&Console::quit, this));
 }
 
 // console handler
@@ -25,17 +26,22 @@ void Console::handler(void)
         std::string command;
         std::cin >> command;
 
-        std::cout << " command=" << command.c_str(); //XXX test
-
-        if (command[0] == 'q')
+        if (commands.find(command) != commands.end())
         {
-            quitRequest = true;
+            // command exists - execute it
+            commands[command].second();
+        }
+        else
+        {
+            //command not found
+            std::cout << "\ninvalid command: " << command.c_str();
         }
 
         std::cin.clear();
         std::cin.ignore(INT_MAX, '\n');
     }
 }
+
 
 // log message in console window
 void Console::log(LogLevel level, std::string message)
@@ -46,4 +52,10 @@ void Console::log(LogLevel level, std::string message)
     {
         std::cout << levelText.find(level)->second.c_str() << ": " << message.c_str() << std::endl;
     }
+}
+
+//register console command
+void Console::registerCommand(std::string command, std::string description, std::function<void(void)> action)
+{
+    commands[command] = std::pair < std::string, std::function<void(void)>>(description, action);
 }
