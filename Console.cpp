@@ -1,5 +1,6 @@
 #include "Console.h"
 #include <conio.h>
+#include <string>
 #include <iostream>
 
 
@@ -16,17 +17,21 @@ Console::Console()
 // console handler
 void Console::handler(void)
 {
+    std::string userInput;
+
     while (!quitRequest)
     {
         std::cout << "\n>" << std::flush;
 
-        int key = toupper(_getch());
-        std::cout << std::hex << key;
+        std::getline(std::cin, userInput);
+        std::cout << "\n--> " << userInput.c_str(); //XXX test
 
-        if (key == 0x51)
+        if (userInput[0] == 'q')
         {
             quitRequest = true;
         }
+
+        std::cin.clear();
     }
 }
 
