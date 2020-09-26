@@ -2,6 +2,7 @@
 #include <conio.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 
 Console& Console::getInstance()
@@ -17,21 +18,22 @@ Console::Console()
 // console handler
 void Console::handler(void)
 {
-    std::string userInput;
-
     while (!quitRequest)
     {
         std::cout << "\n>" << std::flush;
 
-        std::getline(std::cin, userInput);
-        std::cout << "\n--> " << userInput.c_str(); //XXX test
+        std::string command;
+        std::cin >> command;
 
-        if (userInput[0] == 'q')
+        std::cout << " command=" << command.c_str(); //XXX test
+
+        if (command[0] == 'q')
         {
             quitRequest = true;
         }
 
         std::cin.clear();
+        std::cin.ignore(INT_MAX, '\n');
     }
 }
 
