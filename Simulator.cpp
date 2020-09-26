@@ -1,6 +1,7 @@
 #include "Simulator.h"
 #include "Console.h"
 #include <chrono>
+#include <thread>
 
 Simulator& Simulator::getInstance()
 {
@@ -8,22 +9,19 @@ Simulator& Simulator::getInstance()
     return instance;
 }
 
-Simulator::Simulator() :
-    handlerThread(&Simulator::handler, this)
+Simulator::Simulator()
 {
     Console::getInstance().log(LogLevel::Debug, "Simulator object created");
 }
 
 Simulator::~Simulator()
 {
-    handlerThread.join();
 }
 
 // simulator handler function
 void Simulator::handler(void)
 {
-    static int cnt = 0; //XXX for test only
-    while (cnt++ < 10)
+    while (!Console::getInstance().isQuitRequest())
     {
         std::cout << "." << std::flush;
         std::this_thread::sleep_for(std::chrono::seconds(1));

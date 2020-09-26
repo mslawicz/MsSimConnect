@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include "SimConnect.h"
 #include <iostream>
-#include <thread>
+
 
 class Simulator
 {
@@ -12,11 +12,10 @@ public:
     Simulator& operator=(Simulator const&) = delete;
     static Simulator& getInstance();
     void doNothing(void) {} // XXX for test
+    void handler(void);
 private:
     Simulator();
     ~Simulator();
-    void handler(void);
     void dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext);
-    std::thread handlerThread;
 };
 

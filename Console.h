@@ -21,6 +21,8 @@ public:
     Console& operator=(Console const&) = delete;
     static Console& getInstance();
     void log(LogLevel level, std::string message);
+    void handler(void);
+    bool isQuitRequest(void) const { return quitRequest; }
 private:
     Console();
     LogLevel currentLevel{ LogLevel::Debug };
@@ -33,4 +35,5 @@ private:
         {LogLevel::Info, "info"},
         {LogLevel::Debug, "debug"}
     };
+    bool quitRequest{ false };
 };

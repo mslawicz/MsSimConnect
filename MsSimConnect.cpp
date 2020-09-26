@@ -3,8 +3,8 @@
 
 #include "Console.h"
 #include "Simulator.h"
-#include <conio.h>
 #include <iostream>
+#include <thread>
 
 
 int main()
@@ -13,14 +13,9 @@ int main()
     Console::getInstance().log(LogLevel::Always, "press Q to quit");
 
     Simulator::getInstance().doNothing();
+    std::thread simulatorThread(&Simulator::handler, &Simulator::getInstance());
 
-    int key = 0;
-    do
-    {
-        if (_kbhit())
-        {
-            key = toupper(_getch());
-            std::cout << std::hex << key << ",";
-        }
-    } while(key != 0x51);   //'Q'
+    Console::getInstance().handler();
+
+    simulatorThread.join();
 }
