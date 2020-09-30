@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <map>
 #include <unordered_map>
 #include <functional>
 
@@ -27,6 +28,7 @@ public:
     bool isQuitRequest(void) const { return quitRequest; }
     void registerCommand(std::string command, std::string description, std::function<void(void)> action);
     void quit(void) { quitRequest = true; }
+    void help(void);
 private:
     Console();
     LogLevel currentLevel{ LogLevel::Debug };
@@ -40,5 +42,5 @@ private:
         {LogLevel::Debug, "debug"}
     };
     bool quitRequest{ false };
-    std::unordered_map < std::string, std::pair<std::string, std::function<void(void)>>> commands;
+    std::map < std::string, std::pair<std::string, std::function<void(void)>>> commands;
 };

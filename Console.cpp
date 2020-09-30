@@ -13,7 +13,8 @@ Console& Console::getInstance()
 
 Console::Console()
 {
-    registerCommand("quit", "quit from program", std::bind(&Console::quit, this));
+    registerCommand("quit", "quit the program", std::bind(&Console::quit, this));
+    registerCommand("help", "display console commands", std::bind(&Console::help, this));
 }
 
 // console handler
@@ -50,7 +51,7 @@ void Console::log(LogLevel level, std::string message)
     int iLevel = static_cast<int>(level);
     if ((iLevel <= iCurrentLevel) && (iCurrentLevel > 0))
     {
-        std::cout << levelText.find(level)->second.c_str() << ": " << message.c_str() << std::endl;
+        std::cout << "\r" << levelText.find(level)->second.c_str() << ": " << message.c_str() << std::endl;
     }
 }
 
@@ -58,4 +59,13 @@ void Console::log(LogLevel level, std::string message)
 void Console::registerCommand(std::string command, std::string description, std::function<void(void)> action)
 {
     commands[command] = std::pair < std::string, std::function<void(void)>>(description, action);
+}
+
+// display the list of console commands
+void Console::help(void)
+{
+    for (auto const& [command, resource] : commands)
+    {
+        std::cout << command.c_str() << " - " << resource.first.c_str() << std::endl;
+    }
 }
