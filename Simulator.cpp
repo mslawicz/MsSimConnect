@@ -127,8 +127,26 @@ void Simulator::addToDataDefinition(HANDLE hSimConnect, SIMCONNECT_DATA_DEFINITI
     }
 }
 
-// request data from SimConnect server
+// request all subscribed data from SimConnect server
 void Simulator::dataRequest(void)
 {
-    SimConnect_RequestDataOnSimObject(hSimConnect, AircraftParametersRequest, AircraftParametersDefinition, SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_SECOND);
+    requestDataOnSimObject(AircraftParametersRequest, AircraftParametersDefinition, SIMCONNECT_PERIOD_SECOND);
+}
+
+// request data from SimConnect server - called from Simulator::dataRequest
+void Simulator::requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID RequestID, SIMCONNECT_DATA_DEFINITION_ID DefineID, SIMCONNECT_PERIOD Period)
+{
+    HRESULT hr = SimConnect_RequestDataOnSimObject(hSimConnect, RequestID, DefineID, SIMCONNECT_OBJECT_ID_USER, Period);
+    if (hr == S_OK)
+    {
+        std::stringstream ss;
+        ss << "request data: def=" << DefineID << ", req=" << RequestID << ", period=" << Period;
+        Console::getInstance().log(LogLevel::Debug, ss.str());
+    }
+    else
+    {
+        std::stringstream ss;
+        ss << "data request error: def=" << DefineID << ", req=" << RequestID << ", period=" << Period;
+        Console::getInstance().log(LogLevel::Error, ss.str());
+    }
 }
