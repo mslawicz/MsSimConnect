@@ -37,5 +37,17 @@ private:
     {
         AircraftParametersRequest
     };
+    struct SimData
+    {
+        double yokePositionX;
+        double yokePositionY;
+        double rudderPedalPosition;
+        double yokeIndicatorX;
+        double yokeIndicatorY;
+        double rudderPedalIndicator;
+        double elevatorPosition;
+        double elevatorDeflection;
+        double elevatorDeflectionPCT;
+    };
 };
 

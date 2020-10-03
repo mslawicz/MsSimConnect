@@ -147,16 +147,15 @@ void Simulator::dataRequest(void)
 // request data from SimConnect server - called from Simulator::dataRequest
 void Simulator::requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID RequestID, SIMCONNECT_DATA_DEFINITION_ID DefineID, SIMCONNECT_PERIOD Period)
 {
+    std::stringstream ss;
     HRESULT hr = SimConnect_RequestDataOnSimObject(hSimConnect, RequestID, DefineID, SIMCONNECT_OBJECT_ID_USER, Period);
     if (hr == S_OK)
     {
-        std::stringstream ss;
         ss << "request data: def=" << DefineID << ", req=" << RequestID << ", period=" << Period;
         Console::getInstance().log(LogLevel::Debug, ss.str());
     }
     else
     {
-        std::stringstream ss;
         ss << "data request error: def=" << DefineID << ", req=" << RequestID << ", period=" << Period;
         Console::getInstance().log(LogLevel::Error, ss.str());
     }
@@ -166,13 +165,29 @@ void Simulator::requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID RequestID, SIM
 void Simulator::procesSimData(SIMCONNECT_RECV* pData)
 {
     SIMCONNECT_RECV_SIMOBJECT_DATA* pObjData = static_cast<SIMCONNECT_RECV_SIMOBJECT_DATA*>(pData);
+    std::stringstream ss;
     switch (pObjData->dwRequestID)
     {
     case AircraftParametersRequest:
         // XXX print parameters for test
+        {
+            SimData* pSimData = reinterpret_cast<SimData*>(&pObjData->dwData);
+            ss << pSimData->yokePositionX;
+            ss << " " << pSimData->yokePositionY;
+            ss << " " << pSimData->rudderPedalPosition;
+            ss << " " << pSimData->yokeIndicatorX;
+            ss << " " << pSimData->yokeIndicatorY;
+            ss << " " << pSimData->rudderPedalIndicator;
+            ss << " " << pSimData->elevatorPosition;
+            ss << " " << pSimData->elevatorDeflection;
+            ss << " " << pSimData->elevatorDeflectionPCT;
+            Console::getInstance().log(LogLevel::Info, ss.str());
+        }
         break;
     default:
-        // error
+        // unexpected data received
+        ss << "unexpected data received, id=" << pObjData->dwRequestID;
+        Console::getInstance().log(LogLevel::Warning, ss.str());
         break;
     }
 }
