@@ -90,6 +90,17 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
         threadSleepTime = std::chrono::milliseconds(LongSleep);
         break;
 
+    case SIMCONNECT_RECV_ID_SIMOBJECT_DATA:
+        // sim data received
+        procesSimData(pData);
+        threadSleepTime = std::chrono::milliseconds(ShortSleep);
+        break;
+
+    case SIMCONNECT_RECV_ID_NULL:
+        // no more data
+        threadSleepTime = std::chrono::milliseconds(NormalSleep);
+        break;
+
     default:
         break;
     }
@@ -148,5 +159,20 @@ void Simulator::requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID RequestID, SIM
         std::stringstream ss;
         ss << "data request error: def=" << DefineID << ", req=" << RequestID << ", period=" << Period;
         Console::getInstance().log(LogLevel::Error, ss.str());
+    }
+}
+
+// process data received from simulator
+void Simulator::procesSimData(SIMCONNECT_RECV* pData)
+{
+    SIMCONNECT_RECV_SIMOBJECT_DATA* pObjData = static_cast<SIMCONNECT_RECV_SIMOBJECT_DATA*>(pData);
+    switch (pObjData->dwRequestID)
+    {
+    case AircraftParametersRequest:
+        // XXX print parameters for test
+        break;
+    default:
+        // error
+        break;
     }
 }

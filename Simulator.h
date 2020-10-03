@@ -23,6 +23,7 @@ private:
     void addToDataDefinition(HANDLE  hSimConnect, SIMCONNECT_DATA_DEFINITION_ID  defineID, std::string datumName, std::string unitsName, SIMCONNECT_DATATYPE  datumType = SIMCONNECT_DATATYPE_FLOAT64);
     void dataRequest(void);
     void requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID  RequestID, SIMCONNECT_DATA_DEFINITION_ID  DefineID, SIMCONNECT_PERIOD  Period);
+    void procesSimData(SIMCONNECT_RECV* pData);
     HANDLE hSimConnect{ nullptr };
     const uint8_t ShortSleep = 1;
     const uint8_t NormalSleep = 10;
