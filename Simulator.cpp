@@ -125,6 +125,11 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Position", "Position");
     addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Deflection", "Radians");
     addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Deflection PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Trim Position", "Position");
+    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Trim Indicator", "Position");
+    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Trim PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Sigma SQRT", "Number");
+    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Dynamic Pressure", "Pounds Per Square Foot");
 }
 
 // add data definition for reception from SimConnect server
@@ -179,15 +184,20 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         // XXX print parameters for test
         {
             SimData* pSimData = reinterpret_cast<SimData*>(&pObjData->dwData);
-            ss << pSimData->yokePositionX;
+            //ss << pSimData->yokePositionX;
             ss << " " << pSimData->yokePositionY;
-            ss << " " << pSimData->rudderPedalPosition;
-            ss << " " << pSimData->yokeIndicatorX;
+            //ss << " " << pSimData->rudderPedalPosition;
+            //ss << " " << pSimData->yokeIndicatorX;
             ss << " " << pSimData->yokeIndicatorY;
-            ss << " " << pSimData->rudderPedalIndicator;
+            //ss << " " << pSimData->rudderPedalIndicator;
             ss << " " << pSimData->elevatorPosition;
             ss << " " << pSimData->elevatorDeflection;
             ss << " " << pSimData->elevatorDeflectionPCT;
+            ss << " " << pSimData->elevatorTrimPosition;
+            ss << " " << pSimData->elevatorTrimIndicator;
+            ss << " " << pSimData->elevatorTrimPCT;
+            ss << " " << pSimData->sigmaSQRT;
+            ss << " " << pSimData->dynamicPressure;
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;

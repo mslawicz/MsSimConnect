@@ -49,6 +49,11 @@ private:
         double elevatorPosition;
         double elevatorDeflection;
         double elevatorDeflectionPCT;
+        double elevatorTrimPosition;
+        double elevatorTrimIndicator;
+        double elevatorTrimPCT;
+        double sigmaSQRT;
+        double dynamicPressure;
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
 };
