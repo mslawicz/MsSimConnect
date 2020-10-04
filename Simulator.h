@@ -4,6 +4,7 @@
 #include "SimConnect.h"
 #include <iostream>
 #include <chrono>
+#include <set>
 
 
 class Simulator
@@ -49,5 +50,6 @@ private:
         double elevatorDeflection;
         double elevatorDeflectionPCT;
     };
+    std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
 };
 

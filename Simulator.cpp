@@ -67,13 +67,13 @@ void Simulator::dispatchWrapper(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 // dispatch data from simulator
 void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 {
-    // check SimConnect event ID
+    std::stringstream ss;
+    // check SimConnect message ID
     switch (pData->dwID)
     {
     case SIMCONNECT_RECV_ID_OPEN:
         // connection process is complete
         {
-            std::stringstream ss;
             SIMCONNECT_RECV_OPEN* pOpenData = static_cast<SIMCONNECT_RECV_OPEN*>(pData);
             ss << "connected to SimConnect v" << pOpenData->dwSimConnectVersionMajor << "." << pOpenData->dwSimConnectVersionMinor;
             Console::getInstance().log(LogLevel::Info, ss.str());
@@ -102,6 +102,13 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
         break;
 
     default:
+        if (dwIDs.find(pData->dwID) != dwIDs.end())
+        {
+            // a new unknown dwID received
+            ss << "unknown dwID=" << pData->dwID << " received";
+            Console::getInstance().log(LogLevel::Debug, ss.str());
+            dwIDs.insert(pData->dwID);
+        }
         break;
     }
 }
