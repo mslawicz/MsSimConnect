@@ -12,7 +12,6 @@ int main()
     Console::getInstance().log(LogLevel::Always, "MS SimConnect client v1.0");
     Console::getInstance().log(LogLevel::Always, "type 'help' for the list of commands");
 
-    Simulator::getInstance().doNothing();
     std::thread simulatorThread(&Simulator::handler, &Simulator::getInstance());
 
     Console::getInstance().handler();

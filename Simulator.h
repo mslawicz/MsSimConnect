@@ -13,7 +13,6 @@ public:
     Simulator(Simulator const&) = delete;
     Simulator& operator=(Simulator const&) = delete;
     static Simulator& getInstance();
-    void doNothing(void) {} // XXX for test
     void handler(void);
     static void CALLBACK dispatchWrapper(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext);
 private:

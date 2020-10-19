@@ -34,11 +34,14 @@ void Simulator::handler(void)
                 Console::getInstance().log(LogLevel::Info, "connecting to SimConnect server");
                 threadSleepTime = std::chrono::milliseconds(NormalSleep);
             }
+            else
+            {
+                putchar('.');   //XXX test
+            }
         }
         else
         {
             // connected to simulator - dispatch
-            auto fn = std::bind(&Simulator::dispatch, this);
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
         }
         std::this_thread::sleep_for(threadSleepTime);
