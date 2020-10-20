@@ -9,7 +9,8 @@ Simulator& Simulator::getInstance()
     return instance;
 }
 
-Simulator::Simulator()
+Simulator::Simulator() :
+    joystickLink(VENDOR_ID, PRODUCT_ID, REPORT_ID)
 {
     Console::getInstance().log(LogLevel::Debug, "Simulator object created");
 }
@@ -44,6 +45,12 @@ void Simulator::handler(void)
             // connected to simulator - dispatch
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
         }
+
+        if (!joystickLink.isConnectionOpen())
+        {
+            joystickLink.openConnection();
+        }
+
         std::this_thread::sleep_for(threadSleepTime);
     }
 
@@ -59,6 +66,11 @@ void Simulator::handler(void)
         {
             Console::getInstance().log(LogLevel::Error, "failed to disconnect from Simconnect server");
         }
+    }
+
+    if (joystickLink.isConnectionOpen())
+    {
+        joystickLink.closeConnection();
     }
 }
 
