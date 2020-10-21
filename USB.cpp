@@ -3,13 +3,23 @@
 #include "USB.h"
 #include "Console.h"
 #include <SetupAPI.h>
-#include <string>
+#include <iostream>
+#include <sstream>
 
 USBHID::USBHID(USHORT VID, USHORT PID, uint8_t collection) :
     VID(VID),
     PID(PID),
     collection(collection)
 {
+    std::stringstream ss;
+    ss << std::hex << "USB HID device with VID=" << VID << " PID=" << PID;
+    VidPid = ss.str();
+    collectionStr = L"&col";
+    if (collection < 10)
+    {
+        collectionStr += L"0";
+    }
+    collectionStr += std::to_wstring(collection);
 }
 
 USBHID::~USBHID()
@@ -21,6 +31,7 @@ bool USBHID::openConnection()
 {
     isOpen = false;
     bool found = false;     // mark that the device has not been found yet
+
     HidD_GetHidGuid(&hidGuid);      // get the device interfaceGUID for HIDClass devices
 
     // SetupDiGetClassDevs function returns a handle to a device information set that contains requested device information elements for a local computer
@@ -69,6 +80,7 @@ bool USBHID::openConnection()
                 securityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
                 securityAttributes.bInheritHandle = true;
 
+                std::wcout << "checking " << pDeviceInterfaceDetailData->DevicePath << std::endl;
                 // Creates or opens a file or I/O device
                 // query metadata such as file, directory, or device attributes without accessing device 
                 fileHandle = CreateFile(pDeviceInterfaceDetailData->DevicePath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -82,13 +94,6 @@ bool USBHID::openConnection()
                     if (HidD_GetAttributes(fileHandle, &attributes))
                     {
                         CloseHandle(fileHandle);
-                        std::wstring collectionStr = L"&col";
-                        if (collection < 10)
-                        {
-                            collectionStr += L"0";
-                        }
-                        collectionStr += std::to_wstring(collection);
-
                         if ((attributes.VendorID == VID) &&
                             (attributes.ProductID == PID) &&
                             ((collection == 0) || wcsstr(pDeviceInterfaceDetailData->DevicePath, collectionStr.c_str())))
@@ -100,7 +105,7 @@ bool USBHID::openConnection()
                             if (fileHandle != INVALID_HANDLE_VALUE)
                             {
                                 isOpen = true;
-                                Console::getInstance().log(LogLevel::Info, "Connection to USB HID device with VID=" + std::to_string(VID) + " PID=" + std::to_string(PID) + " opened");
+                                Console::getInstance().log(LogLevel::Info, "Connection to " + VidPid + " opened");
                             }
                             else
                             {
@@ -119,7 +124,7 @@ bool USBHID::openConnection()
 
     if (!isOpen)
     {
-        Console::getInstance().log(LogLevel::Debug, "USB HID device with VID=" + std::to_string(VID) + " PID=" + std::to_string(PID) + " not found");
+        Console::getInstance().log(LogLevel::Debug, VidPid + " not found");
     }
 
     return isOpen;
@@ -133,7 +138,7 @@ void USBHID::closeConnection()
     {
         CloseHandle(fileHandle);
         fileHandle = INVALID_HANDLE_VALUE;
-        Console::getInstance().log(LogLevel::Info, "closing connection to HID device with VID=" + std::to_string(VID) + " PID=" + std::to_string(PID));
+        Console::getInstance().log(LogLevel::Info, "closing connection to " + VidPid);
     }
     else
     {
