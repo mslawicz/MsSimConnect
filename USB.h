@@ -6,6 +6,8 @@
 #include <hidsdi.h>
 #include <string>
 
+#define HID_BUFFER_SIZE    64   // report id + 63 bytes of payload
+
 class USBHID
 {
 public:
@@ -14,6 +16,8 @@ public:
     bool openConnection();
     void closeConnection();
     bool isConnectionOpen() const { return isOpen; }
+    void enableReception(void);
+    void disableReception(void); // clears the reception event (no signals until enabled again)
 private:
     USHORT VID;
     USHORT PID;
@@ -23,5 +27,9 @@ private:
     HANDLE fileHandle{ nullptr };
     std::string VidPid;
     std::wstring collectionStr;
+    static const size_t ReceiveBufferSize = 260;
+    uint8_t receiveBuffer[ReceiveBufferSize];
+    LPDWORD receivedDataCount;
+    OVERLAPPED receiveOverlappedData;
 };
 

@@ -146,3 +146,22 @@ void USBHID::closeConnection()
     }
     isOpen = false;
 }
+
+
+// starts reception in asynchronous mode
+// this way it enables reception of the incoming data
+void USBHID::enableReception(void)
+{
+    if (isOpen && (fileHandle != INVALID_HANDLE_VALUE))
+    {
+        auto result = ReadFile(fileHandle, receiveBuffer, HID_BUFFER_SIZE, receivedDataCount, &receiveOverlappedData);
+        Console::getInstance().log(LogLevel::Info, "USB reading enabled with code " + std::to_string(result));
+    }
+}
+
+// disable USB reception
+void USBHID::disableReception(void)
+{
+    auto result = ResetEvent(receiveOverlappedData.hEvent);  // clears the reception event (no signals until enabled again)
+    Console::getInstance().log(LogLevel::Info, "USB reading disabled with code " + std::to_string(result));
+}

@@ -46,9 +46,19 @@ void Simulator::handler(void)
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
         }
 
-        if (!joystickLink.isConnectionOpen())
+        if (joystickLink.isConnectionOpen())
         {
-            joystickLink.openConnection();
+            // send simulator data here
+        }
+        else
+        {
+            // no USB connection - try to connect
+            if (joystickLink.openConnection())
+            {
+                // connection has been opened
+                // enable reception
+                joystickLink.enableReception();
+            }
         }
 
         std::this_thread::sleep_for(threadSleepTime);
@@ -70,6 +80,7 @@ void Simulator::handler(void)
 
     if (joystickLink.isConnectionOpen())
     {
+        joystickLink.disableReception();
         joystickLink.closeConnection();
     }
 }
