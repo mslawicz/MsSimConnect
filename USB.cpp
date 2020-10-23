@@ -105,7 +105,14 @@ bool USBHID::openConnection()
                             if (fileHandle != INVALID_HANDLE_VALUE)
                             {
                                 isOpen = true;
-                                Console::getInstance().log(LogLevel::Info, "Connection to " + VidPid + " opened");
+                                std::stringstream ss;
+                                ss << "Connection to " << VidPid.c_str();
+                                if (collection)
+                                {
+                                    ss << " collection=" << static_cast<int>(collection);
+                                }
+                                ss << " opened";
+                                Console::getInstance().log(LogLevel::Info, ss.str());
                             }
                             else
                             {
@@ -164,4 +171,11 @@ void USBHID::disableReception(void)
 {
     auto result = ResetEvent(receiveOverlappedData.hEvent);  // clears the reception event (no signals until enabled again)
     Console::getInstance().log(LogLevel::Info, "USB reading disabled with code " + std::to_string(result));
+}
+
+// return true if received data is signaled
+// this call doesn't reset the signal
+bool USBHID::isDataReceived(void)
+{
+    return (WaitForSingleObject(receiveOverlappedData.hEvent, 0) == WAIT_OBJECT_0);
 }

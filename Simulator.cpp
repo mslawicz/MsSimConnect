@@ -48,7 +48,12 @@ void Simulator::handler(void)
 
         if (joystickLink.isConnectionOpen())
         {
-            // send simulator data here
+            // check a new data from joystick
+            if (joystickLink.isDataReceived())
+            {
+                putchar('+');   //XXX test
+                joystickLink.enableReception();
+            }
         }
         else
         {

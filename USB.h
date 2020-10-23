@@ -6,7 +6,15 @@
 #include <hidsdi.h>
 #include <string>
 
-#define HID_BUFFER_SIZE    64   // report id + 63 bytes of payload
+#define VENDOR_ID   0x483
+#define PRODUCT_ID  0x5712  // HID joystick + 2
+#define REPORT_ID   0x02
+
+#if REPORT_ID != 0
+#define HID_BUFFER_SIZE    64   // report id + 63 bytes of payload to be sent
+#else
+#define HID_BUFFER_SIZE    65   // report id (0) + 64 bytes of payload to be sent
+#endif
 
 class USBHID
 {
@@ -18,6 +26,7 @@ public:
     bool isConnectionOpen() const { return isOpen; }
     void enableReception(void);
     void disableReception(void); // clears the reception event (no signals until enabled again)
+    bool isDataReceived(void);
 private:
     USHORT VID;
     USHORT PID;

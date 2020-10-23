@@ -7,10 +7,6 @@
 #include <chrono>
 #include <set>
 
-#define VENDOR_ID   0x483
-#define PRODUCT_ID  0x5712  // HID joystick + 2
-#define REPORT_ID   0x00
-
 class Simulator
 {
 public:
