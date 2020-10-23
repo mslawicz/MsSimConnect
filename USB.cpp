@@ -80,7 +80,9 @@ bool USBHID::openConnection()
                 securityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
                 securityAttributes.bInheritHandle = true;
 
-                std::wcout << "checking " << pDeviceInterfaceDetailData->DevicePath << std::endl;
+                std::wstring ws(pDeviceInterfaceDetailData->DevicePath);
+                Console::getInstance().log(LogLevel::Debug, "checking " + std::string(ws.begin(), ws.end()));
+
                 // Creates or opens a file or I/O device
                 // query metadata such as file, directory, or device attributes without accessing device 
                 fileHandle = CreateFile(pDeviceInterfaceDetailData->DevicePath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -123,6 +125,18 @@ bool USBHID::openConnection()
                         }
                     }
                 }
+                else
+                {
+                    std::stringstream ss;
+                    ss << "invalid file handle, error code = " << GetLastError();
+                    Console::getInstance().log(LogLevel::Warning, ss.str());
+                }
+            }
+            else
+            {
+                std::stringstream ss;
+                ss << "couldn't get device interface details; error code = " << GetLastError();
+                Console::getInstance().log(LogLevel::Warning, ss.str());
             }
             free(pDeviceInterfaceDetailData);
         }
@@ -162,7 +176,9 @@ void USBHID::enableReception(void)
     if (isOpen && (fileHandle != INVALID_HANDLE_VALUE))
     {
         auto result = ReadFile(fileHandle, receiveBuffer, HID_BUFFER_SIZE, receivedDataCount, &receiveOverlappedData);
-        Console::getInstance().log(LogLevel::Info, "USB reading enabled with code " + std::to_string(result));
+        std::stringstream ss;
+        ss << "USB read result=" << result << " cnt=" << receivedDataCount << " error=" << GetLastError();
+        Console::getInstance().log(LogLevel::Debug, ss.str());
     }
 }
 

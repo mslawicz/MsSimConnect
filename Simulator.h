@@ -26,8 +26,8 @@ private:
     void procesSimData(SIMCONNECT_RECV* pData);
     HANDLE hSimConnect{ nullptr };
     const uint8_t ShortSleep = 1;
-    const uint8_t NormalSleep = 10;
-    const uint16_t LongSleep = 1000;
+    const uint8_t NormalSleep = 5;
+    const uint16_t LongSleep = 5; // 1000;
     std::chrono::milliseconds threadSleepTime{ std::chrono::milliseconds(LongSleep) };
     enum  DataDefineID
     {

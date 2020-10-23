@@ -29,7 +29,7 @@ void Simulator::handler(void)
         if (hSimConnect == nullptr)
         {
             // not connected to simulator - try to connect
-            hResult = SimConnect_Open(&hSimConnect, "MsSimConnect", nullptr, 0, 0, 0);
+            hResult = 1;// SimConnect_Open(&hSimConnect, "MsSimConnect", nullptr, 0, 0, 0);
             if (hResult == S_OK)
             {
                 Console::getInstance().log(LogLevel::Info, "connecting to SimConnect server");
@@ -37,7 +37,7 @@ void Simulator::handler(void)
             }
             else
             {
-                putchar('.');   //XXX test
+                //putchar('.');   //XXX test
             }
         }
         else
@@ -66,7 +66,8 @@ void Simulator::handler(void)
             }
         }
 
-        std::this_thread::sleep_for(threadSleepTime);
+        //std::this_thread::sleep_for(threadSleepTime);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     if (hSimConnect)
