@@ -11,6 +11,8 @@ USBHID::USBHID(USHORT VID, USHORT PID, uint8_t collection) :
     PID(PID),
     collection(collection)
 {
+    memset(&receiveOverlappedData, 0, sizeof(receiveOverlappedData));
+    receiveOverlappedData.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     std::stringstream ss;
     ss << std::hex << "USB HID device with VID=" << VID << " PID=" << PID;
     VidPid = ss.str();
@@ -175,7 +177,7 @@ void USBHID::enableReception(void)
 {
     if (isOpen && (fileHandle != INVALID_HANDLE_VALUE))
     {
-        auto result = ReadFile(fileHandle, receiveBuffer, HID_BUFFER_SIZE, receivedDataCount, &receiveOverlappedData);
+        auto result = ReadFile(fileHandle, receiveBuffer, HID_BUFFER_SIZE, &receivedDataCount, &receiveOverlappedData);
         std::stringstream ss;
         ss << "USB read result=" << result << " cnt=" << receivedDataCount << " error=" << GetLastError();
         Console::getInstance().log(LogLevel::Debug, ss.str());

@@ -32,13 +32,13 @@ private:
     USHORT PID;
     uint8_t collection;
     bool isOpen{ false };        // true if the device is found and open
-    GUID hidGuid{ 0 };           // pointer to a caller-allocated GUID buffer that the routine uses to return the device interface GUID for HIDClass devices
-    HANDLE fileHandle{ nullptr };
+    GUID hidGuid{ CLSID_NULL };  // pointer to a caller-allocated GUID buffer that the routine uses to return the device interface GUID for HIDClass devices
+    HANDLE fileHandle{ INVALID_HANDLE_VALUE };
     std::string VidPid;
     std::wstring collectionStr;
     static const size_t ReceiveBufferSize = 260;
     uint8_t receiveBuffer[ReceiveBufferSize];
-    LPDWORD receivedDataCount;
+    DWORD receivedDataCount;
     OVERLAPPED receiveOverlappedData;
 };
 
