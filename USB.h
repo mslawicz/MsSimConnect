@@ -6,21 +6,13 @@
 #include <hidsdi.h>
 #include <string>
 
-#define VENDOR_ID   0x483
-#define PRODUCT_ID  0x5712  // HID joystick + 2
-#define REPORT_ID   0x02
-
-#if REPORT_ID != 0
-#define HID_BUFFER_SIZE    64   // report id + 63 bytes of payload to be sent
-#else
-#define HID_BUFFER_SIZE    65   // report id (0) + 64 bytes of payload to be sent
-#endif
 
 class USBHID
 {
 public:
     USBHID(USHORT VID, USHORT PID, uint8_t collection);
     ~USBHID();
+    void handler();
     bool openConnection();
     void closeConnection();
     bool isConnectionOpen() const { return isOpen; }
@@ -37,6 +29,7 @@ private:
     std::string VidPid;
     std::wstring collectionStr;
     static const size_t ReceiveBufferSize = 260;
+    const DWORD HidBufferSize = collection ? 64 : 65; // report id (!=0) + 63 bytes of payload or report id (==0) + 64 bytes of payload
     uint8_t receiveBuffer[ReceiveBufferSize];
     DWORD receivedDataCount;
     OVERLAPPED receiveOverlappedData;

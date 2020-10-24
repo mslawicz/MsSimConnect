@@ -2,7 +2,6 @@
 
 #include <Windows.h>
 #include "SimConnect.h"
-#include "USB.h"
 #include <iostream>
 #include <chrono>
 #include <set>
@@ -27,7 +26,7 @@ private:
     HANDLE hSimConnect{ nullptr };
     const uint8_t ShortSleep = 1;
     const uint8_t NormalSleep = 5;
-    const uint16_t LongSleep = 5; // 1000;
+    const uint16_t LongSleep = 1000;
     std::chrono::milliseconds threadSleepTime{ std::chrono::milliseconds(LongSleep) };
     enum  DataDefineID
     {
@@ -55,6 +54,5 @@ private:
         double dynamicPressure;
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
-    USBHID joystickLink;
 };
 

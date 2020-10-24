@@ -9,8 +9,7 @@ Simulator& Simulator::getInstance()
     return instance;
 }
 
-Simulator::Simulator() :
-    joystickLink(VENDOR_ID, PRODUCT_ID, REPORT_ID)
+Simulator::Simulator()
 {
     Console::getInstance().log(LogLevel::Debug, "Simulator object created");
 }
@@ -46,28 +45,7 @@ void Simulator::handler(void)
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
         }
 
-        if (joystickLink.isConnectionOpen())
-        {
-            // check a new data from joystick
-            if (joystickLink.isDataReceived())
-            {
-                putchar('+');   //XXX test
-                joystickLink.enableReception();
-            }
-        }
-        else
-        {
-            // no USB connection - try to connect
-            if (joystickLink.openConnection())
-            {
-                // connection has been opened
-                // enable reception
-                joystickLink.enableReception();
-            }
-        }
-
-        //std::this_thread::sleep_for(threadSleepTime);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(threadSleepTime);
     }
 
     if (hSimConnect)
@@ -82,12 +60,6 @@ void Simulator::handler(void)
         {
             Console::getInstance().log(LogLevel::Error, "failed to disconnect from Simconnect server");
         }
-    }
-
-    if (joystickLink.isConnectionOpen())
-    {
-        joystickLink.disableReception();
-        joystickLink.closeConnection();
     }
 }
 

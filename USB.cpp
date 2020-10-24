@@ -5,6 +5,8 @@
 #include <SetupAPI.h>
 #include <iostream>
 #include <sstream>
+#include <thread>
+#include <chrono>
 
 USBHID::USBHID(USHORT VID, USHORT PID, uint8_t collection) :
     VID(VID),
@@ -26,6 +28,43 @@ USBHID::USBHID(USHORT VID, USHORT PID, uint8_t collection) :
 
 USBHID::~USBHID()
 {
+}
+
+// USB link handler to be called in a separate thread
+void USBHID::handler()
+{
+    // stay in this loop until the user requests quit
+    while (!Console::getInstance().isQuitRequest())
+    {
+        if (isOpen)
+        {
+            // check a new data from joystick
+            if (isDataReceived())
+            {
+                // parse data here
+                putchar('+');   //XXX test
+                enableReception();
+            }
+        }
+        else
+        {
+            // no USB connection - try to connect
+            if (openConnection())
+            {
+                // connection has been opened
+                // enable reception
+                enableReception();
+            }
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    if (isOpen)
+    {
+        disableReception();
+        closeConnection();
+    }
 }
 
 // find the USB device and open the connection to it
@@ -177,7 +216,7 @@ void USBHID::enableReception(void)
 {
     if (isOpen && (fileHandle != INVALID_HANDLE_VALUE))
     {
-        auto result = ReadFile(fileHandle, receiveBuffer, HID_BUFFER_SIZE, &receivedDataCount, &receiveOverlappedData);
+        auto result = ReadFile(fileHandle, receiveBuffer, HidBufferSize, &receivedDataCount, &receiveOverlappedData);
         std::stringstream ss;
         ss << "USB read result=" << result << " cnt=" << receivedDataCount << " error=" << GetLastError();
         Console::getInstance().log(LogLevel::Debug, ss.str());
