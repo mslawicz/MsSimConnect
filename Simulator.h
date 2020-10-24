@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include "SimConnect.h"
+#include "USB.h"
 #include <iostream>
 #include <chrono>
 #include <set>
@@ -14,6 +15,7 @@ public:
     static Simulator& getInstance();
     void handler(void);
     static void CALLBACK dispatchWrapper(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext);
+    void setJoystickLink(USBHID* pLink) { pJoystickLink = pLink; }
 private:
     Simulator();
     ~Simulator();
@@ -54,5 +56,6 @@ private:
         double dynamicPressure;
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
+    USBHID* pJoystickLink{ nullptr };
 };
 

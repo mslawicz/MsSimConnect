@@ -18,6 +18,7 @@ int main()
     Console::getInstance().log(LogLevel::Always, "type 'help' for the list of commands");
 
     USBHID joystickLink(VENDOR_ID, PRODUCT_ID, REPORT_ID);
+    Simulator::getInstance().setJoystickLink(&joystickLink);
 
     std::thread joystickLinkThread(&USBHID::handler, &joystickLink);
     std::thread simulatorThread(&Simulator::handler, &Simulator::getInstance());
