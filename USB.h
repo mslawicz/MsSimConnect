@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <hidsdi.h>
 #include <string>
+#include<vector>
+#include <functional>
 
 
 class USBHID
@@ -33,5 +35,6 @@ private:
     uint8_t receiveBuffer[ReceiveBufferSize];
     DWORD receivedDataCount;
     OVERLAPPED receiveOverlappedData;
+    std::function<void(std::vector<uint8_t>)> dispatchCallback{ nullptr };
 };
 
