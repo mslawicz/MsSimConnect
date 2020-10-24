@@ -16,7 +16,7 @@ public:
     bool openConnection();
     void closeConnection();
     bool isConnectionOpen() const { return isOpen; }
-    void enableReception(void);
+    bool enableReception(void);
     void disableReception(void); // clears the reception event (no signals until enabled again)
     bool isDataReceived(void);
 private:

@@ -52,8 +52,15 @@ void USBHID::handler()
             if (openConnection())
             {
                 // connection has been opened
-                // enable reception
-                enableReception();
+                // enable reception for the first time
+                if (enableReception())
+                {
+                    Console::getInstance().log(LogLevel::Info, "USB data reception enabled");
+                }
+                else
+                {
+                    Console::getInstance().log(LogLevel::Error, "USB data reception enabling failed");
+                }
             }
         }
 
@@ -212,15 +219,26 @@ void USBHID::closeConnection()
 
 // starts reception in asynchronous mode
 // this way it enables reception of the incoming data
-void USBHID::enableReception(void)
+bool USBHID::enableReception(void)
 {
     if (isOpen && (fileHandle != INVALID_HANDLE_VALUE))
     {
         auto result = ReadFile(fileHandle, receiveBuffer, HidBufferSize, &receivedDataCount, &receiveOverlappedData);
-        std::stringstream ss;
-        ss << "USB read result=" << result << " cnt=" << receivedDataCount << " error=" << GetLastError();
-        Console::getInstance().log(LogLevel::Debug, ss.str());
+        DWORD lastError = GetLastError();
+        if ((result != 0) && (lastError != 997))
+        {
+            // when OK, expected values are res=0, cnt=0 and err=997
+            std::stringstream ss;
+            ss << "USB read result=" << result << " cnt=" << receivedDataCount << " error=" << GetLastError();
+            Console::getInstance().log(LogLevel::Warning, ss.str());
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
+    return false;
 }
 
 // disable USB reception
