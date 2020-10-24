@@ -6,11 +6,11 @@
 #include "Simulator.h"
 #include <iostream>
 #include <thread>
+#include <functional>
 
 #define VENDOR_ID   0x483
 #define PRODUCT_ID  0x5712  // HID joystick + 2
 #define REPORT_ID   0x02
-
 
 int main()
 {
@@ -19,6 +19,7 @@ int main()
 
     USBHID joystickLink(VENDOR_ID, PRODUCT_ID, REPORT_ID);
     Simulator::getInstance().setJoystickLink(&joystickLink);
+    joystickLink.setParseFunction(std::bind(&Simulator::parseReceivedData, &Simulator::getInstance(), std::placeholders::_1));
 
     std::thread joystickLinkThread(&USBHID::handler, &joystickLink);
     std::thread simulatorThread(&Simulator::handler, &Simulator::getInstance());

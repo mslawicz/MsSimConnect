@@ -212,3 +212,9 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         break;
     }
 }
+
+// parse received data fron joystick link
+void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
+{
+    putchar('+');   //XXX test
+}

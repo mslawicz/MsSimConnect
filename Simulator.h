@@ -6,6 +6,7 @@
 #include <iostream>
 #include <chrono>
 #include <set>
+#include <vector>
 
 class Simulator
 {
@@ -16,6 +17,7 @@ public:
     void handler(void);
     static void CALLBACK dispatchWrapper(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext);
     void setJoystickLink(USBHID* pLink) { pJoystickLink = pLink; }
+    void parseReceivedData(std::vector<uint8_t> receivedData);      // parse received data fron joystick link
 private:
     Simulator();
     ~Simulator();

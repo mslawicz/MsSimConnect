@@ -41,10 +41,10 @@ void USBHID::handler()
             // check a new data from joystick
             if (isDataReceived())
             {
-                // call data parser
-                if (dispatchCallback)
+                // call reveived data parsing function
+                if (parseCallback)
                 {
-                    dispatchCallback(std::vector<uint8_t>(receiveBuffer, receiveBuffer + receivedDataCount));
+                    parseCallback(std::vector<uint8_t>(receiveBuffer, receiveBuffer + receivedDataCount));
                 }
                 enableReception();
             }

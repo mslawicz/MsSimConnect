@@ -21,6 +21,7 @@ public:
     bool enableReception(void);
     void disableReception(void); // clears the reception event (no signals until enabled again)
     bool isDataReceived(void);
+    void setParseFunction(std::function<void(std::vector<uint8_t>)> fn) { parseCallback = fn; }
 private:
     USHORT VID;
     USHORT PID;
@@ -35,6 +36,6 @@ private:
     uint8_t receiveBuffer[ReceiveBufferSize];
     DWORD receivedDataCount;
     OVERLAPPED receiveOverlappedData;
-    std::function<void(std::vector<uint8_t>)> dispatchCallback{ nullptr };
+    std::function<void(std::vector<uint8_t>)> parseCallback{ nullptr };
 };
 
