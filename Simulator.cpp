@@ -50,6 +50,9 @@ void Simulator::handler(void)
         {
             uint8_t testData[64] = { 0x61, 0x62, 0x63 };
             pJoystickLink->sendData(testData);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            uint8_t testData2[64] = { 0x64, 0x65, 0x66 };
+            pJoystickLink->sendData(testData2);
         }
 
         std::this_thread::sleep_for(threadSleepTime);
