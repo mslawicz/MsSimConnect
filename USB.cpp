@@ -15,6 +15,8 @@ USBHID::USBHID(USHORT VID, USHORT PID, uint8_t collection) :
 {
     memset(&receiveOverlappedData, 0, sizeof(receiveOverlappedData));
     receiveOverlappedData.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    memset(&sendOverlappedData, 0, sizeof(sendOverlappedData));
+    sendOverlappedData.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     std::stringstream ss;
     ss << std::hex << "USB HID device with VID=" << VID << " PID=" << PID;
     VidPid = ss.str();
@@ -256,4 +258,40 @@ void USBHID::disableReception(void)
 bool USBHID::isDataReceived(void)
 {
     return (WaitForSingleObject(receiveOverlappedData.hEvent, 0) == WAIT_OBJECT_0);
+}
+
+// send data to USB HID device
+bool USBHID::sendData(std::vector<uint8_t> dataToSend)
+{
+    if (isOpen && (fileHandle != INVALID_HANDLE_VALUE))
+    {
+        // get overlapped result without waiting
+        bool overlappedResult = GetOverlappedResult(fileHandle, &sendOverlappedData, &sendDataCount, FALSE);
+        DWORD lastError = GetLastError();
+        // if the process is pending, return without action
+        if (!overlappedResult && lastError == ERROR_IO_PENDING)
+        {
+            Console::getInstance().log(LogLevel::Error, "USB data send error=" + std::to_string(lastError));
+            return false;
+        }
+        // if the process is not over, but it's not pending (the other error occured)
+        else if (!overlappedResult)
+        {
+            // reset overlapped data
+            memset(&sendOverlappedData, 0, sizeof(sendOverlappedData));
+            sendOverlappedData.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+            Console::getInstance().log(LogLevel::Error, "USB data send error=" + std::to_string(lastError));
+        }
+        // send data every time if only process in not pending
+        size_t dataSize = dataToSend.size();
+        if (dataSize > HidBufferSize - 1)
+        {
+            dataSize = HidBufferSize - 1;
+        }
+        sendBuffer[0] = collection;
+        memcpy(sendBuffer+1, dataToSend.data(), dataSize);
+        WriteFile(fileHandle, sendBuffer, HidBufferSize, NULL, &sendOverlappedData);
+        return true;
+    }
+    return false;
 }

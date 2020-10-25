@@ -28,7 +28,7 @@ void Simulator::handler(void)
         if (hSimConnect == nullptr)
         {
             // not connected to simulator - try to connect
-            hResult = SimConnect_Open(&hSimConnect, "MsSimConnect", nullptr, 0, 0, 0);
+            hResult = 1; // SimConnect_Open(&hSimConnect, "MsSimConnect", nullptr, 0, 0, 0);
             if (hResult == S_OK)
             {
                 Console::getInstance().log(LogLevel::Info, "connecting to SimConnect server");
@@ -43,6 +43,14 @@ void Simulator::handler(void)
         {
             // connected to simulator - dispatch
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
+        }
+
+        // XXX test of sending data to USB HID device
+        if (pJoystickLink)
+        {
+            std::vector<uint8_t> testData{ 0x61, 0x62, 0x63 };
+            pJoystickLink->sendData(testData);
+            threadSleepTime = std::chrono::milliseconds(20);
         }
 
         std::this_thread::sleep_for(threadSleepTime);
@@ -217,9 +225,5 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
 void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
 {
     //XXX test
-    for (int k = 0; k < 10 && k < receivedData.size(); k++)
-    {
-        std::cout << static_cast<int>(receivedData[k]) << " ";
-    }
-    std::cout << std::endl;
+    putchar('i');
 }
