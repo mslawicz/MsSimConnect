@@ -261,7 +261,7 @@ bool USBHID::isDataReceived(void)
 }
 
 // send data to USB HID device
-bool USBHID::sendData(std::vector<uint8_t> dataToSend)
+bool USBHID::sendData(uint8_t* dataToSend)
 {
     if (isOpen && (fileHandle != INVALID_HANDLE_VALUE))
     {
@@ -283,13 +283,8 @@ bool USBHID::sendData(std::vector<uint8_t> dataToSend)
             Console::getInstance().log(LogLevel::Error, "USB data send error=" + std::to_string(lastError));
         }
         // send data every time if only process in not pending
-        size_t dataSize = dataToSend.size();
-        if (dataSize > HidBufferSize - 1)
-        {
-            dataSize = HidBufferSize - 1;
-        }
         sendBuffer[0] = collection;
-        memcpy(sendBuffer+1, dataToSend.data(), dataSize);
+        memcpy(sendBuffer+1, dataToSend, HidBufferSize-1);
         WriteFile(fileHandle, sendBuffer, HidBufferSize, NULL, &sendOverlappedData);
         return true;
     }

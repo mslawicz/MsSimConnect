@@ -22,7 +22,7 @@ public:
     void disableReception(void); // clears the reception event (no signals until enabled again)
     bool isDataReceived(void);
     void setParseFunction(std::function<void(std::vector<uint8_t>)> fn) { parseCallback = fn; }
-    bool sendData(std::vector<uint8_t> dataToSend);
+    bool sendData(uint8_t* dataToSend);
 private:
     USHORT VID;
     USHORT PID;

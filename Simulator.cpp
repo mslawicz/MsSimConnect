@@ -48,9 +48,8 @@ void Simulator::handler(void)
         // XXX test of sending data to USB HID device
         if (pJoystickLink)
         {
-            std::vector<uint8_t> testData{ 0x61, 0x62, 0x63 };
+            uint8_t testData[64] = { 0x61, 0x62, 0x63 };
             pJoystickLink->sendData(testData);
-            threadSleepTime = std::chrono::milliseconds(20);
         }
 
         std::this_thread::sleep_for(threadSleepTime);
