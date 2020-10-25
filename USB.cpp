@@ -44,7 +44,7 @@ void USBHID::handler()
                 // call reveived data parsing function
                 if (parseCallback)
                 {
-                    parseCallback(std::vector<uint8_t>(receiveBuffer, receiveBuffer + receivedDataCount));
+                    parseCallback(std::vector<uint8_t>(receiveBuffer, receiveBuffer + HidBufferSize));
                 }
                 enableReception();
             }

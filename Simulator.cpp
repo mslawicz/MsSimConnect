@@ -216,5 +216,10 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
 // parse received data fron joystick link
 void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
 {
-    putchar('+');   //XXX test
+    //XXX test
+    for (int k = 0; k < 10 && k < receivedData.size(); k++)
+    {
+        std::cout << static_cast<int>(receivedData[k]) << " ";
+    }
+    std::cout << std::endl;
 }
