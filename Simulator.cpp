@@ -28,7 +28,7 @@ void Simulator::handler(void)
         if (hSimConnect == nullptr)
         {
             // not connected to simulator - try to connect
-            hResult = 1; // SimConnect_Open(&hSimConnect, "MsSimConnect", nullptr, 0, 0, 0);
+            hResult = SimConnect_Open(&hSimConnect, "MsSimConnect", nullptr, 0, 0, 0);
             if (hResult == S_OK)
             {
                 Console::getInstance().log(LogLevel::Info, "connecting to SimConnect server");
@@ -36,7 +36,7 @@ void Simulator::handler(void)
             }
             else
             {
-                putchar('.');   //XXX test
+                Console::getInstance().log(LogLevel::Warning, "no response from SimConnect server");
             }
         }
         else

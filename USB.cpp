@@ -281,6 +281,17 @@ bool USBHID::sendData(uint8_t* dataToSend)
             memset(&sendOverlappedData, 0, sizeof(sendOverlappedData));
             sendOverlappedData.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
             Console::getInstance().log(LogLevel::Error, "USB data send error=" + std::to_string(lastError));
+            if (++sendErrorCounter >= SendErrorLimit)
+            {
+                closeConnection();
+                sendErrorCounter = 0;
+                return false;
+            }
+        }
+        else
+        {
+            // overlapped result true
+            sendErrorCounter = 0;
         }
         // send data every time if only process in not pending
         sendBuffer[0] = collection;

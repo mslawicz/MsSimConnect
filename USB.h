@@ -42,5 +42,7 @@ private:
     OVERLAPPED sendOverlappedData;
     DWORD sendDataCount;
     uint8_t sendBuffer[SendBufferSize];
+    uint8_t sendErrorCounter{ 0 };
+    static const uint8_t SendErrorLimit = 10;
 };
 
