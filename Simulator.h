@@ -42,20 +42,12 @@ private:
     };
     struct SimData
     {
-        double yokePositionX;
-        double yokePositionY;
-        double rudderPedalPosition;
-        double yokeIndicatorX;
         double yokeIndicatorY;
-        double rudderPedalIndicator;
         double elevatorPosition;
-        double elevatorDeflection;
-        double elevatorDeflectionPCT;
-        double elevatorTrimPosition;
         double elevatorTrimIndicator;
-        double elevatorTrimPCT;
-        double sigmaSQRT;
-        double dynamicPressure;
+        double gForce;
+        double gearHydraulicPressure;
+        double propPercent;
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };

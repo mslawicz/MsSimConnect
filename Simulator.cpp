@@ -130,20 +130,12 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 // subscribe to simulator data reception
 void Simulator::subscribe(void)
 {
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Yoke X Position", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Yoke Y Position", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Rudder Pedal Position", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Yoke X Indicator", "Position");
     addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Yoke Y Indicator", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Rudder Pedal Indicator", "Position");
     addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Position", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Deflection", "Radians");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Deflection PCT", "Percent Over 100");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Trim Position", "Position");
     addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Trim Indicator", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Trim PCT", "Percent Over 100");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Sigma SQRT", "Number");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Dynamic Pressure", "Pounds Per Square Foot");
+    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "G Force", "GForce");
+    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Gear Hydraulic Pressure", "psf");
+    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "PROP MAX RPM PERCENT:index", "Percent");
 }
 
 // add data definition for reception from SimConnect server
@@ -198,20 +190,12 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         // XXX print parameters for test
         {
             SimData* pSimData = reinterpret_cast<SimData*>(&pObjData->dwData);
-            //ss << pSimData->yokePositionX;
-            ss << " " << pSimData->yokePositionY;
-            //ss << " " << pSimData->rudderPedalPosition;
-            //ss << " " << pSimData->yokeIndicatorX;
             ss << " " << pSimData->yokeIndicatorY;
-            //ss << " " << pSimData->rudderPedalIndicator;
-            ss << " " << pSimData->elevatorPosition;
-            ss << " " << pSimData->elevatorDeflection;
-            ss << " " << pSimData->elevatorDeflectionPCT;
-            ss << " " << pSimData->elevatorTrimPosition;
-            ss << " " << pSimData->elevatorTrimIndicator;
-            ss << " " << pSimData->elevatorTrimPCT;
-            ss << " " << pSimData->sigmaSQRT;
-            ss << " " << pSimData->dynamicPressure;
+            ss << " e=" << pSimData->elevatorPosition;
+            ss << " t=" << pSimData->elevatorTrimIndicator;
+            ss << " G=" << pSimData->gForce;
+            ss << " h=" << pSimData->gearHydraulicPressure;
+            ss << " p=" << pSimData->propPercent;
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;

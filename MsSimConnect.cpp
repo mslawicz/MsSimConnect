@@ -21,11 +21,11 @@ int main()
     Simulator::getInstance().setJoystickLink(&joystickLink);
     joystickLink.setParseFunction(std::bind(&Simulator::parseReceivedData, &Simulator::getInstance(), std::placeholders::_1));
 
-    std::thread joystickLinkThread(&USBHID::handler, &joystickLink);
+    //XXX std::thread joystickLinkThread(&USBHID::handler, &joystickLink);
     std::thread simulatorThread(&Simulator::handler, &Simulator::getInstance());
 
     Console::getInstance().handler();
 
     simulatorThread.join();
-    joystickLinkThread.join();
+    //XXX joystickLinkThread.join();
 }
