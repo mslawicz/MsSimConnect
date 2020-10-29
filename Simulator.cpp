@@ -50,9 +50,6 @@ void Simulator::handler(void)
         {
             uint8_t testData[64] = { 0x61, 0x62, 0x63 };
             pJoystickLink->sendData(testData);
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            uint8_t testData2[64] = { 0x64, 0x65, 0x66 };
-            pJoystickLink->sendData(testData2);
         }
 
         std::this_thread::sleep_for(threadSleepTime);
@@ -130,12 +127,18 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 // subscribe to simulator data reception
 void Simulator::subscribe(void)
 {
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Yoke Y Indicator", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Position", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Elevator Trim Indicator", "Position");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "G Force", "GForce");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "Gear Hydraulic Pressure", "psf");
-    addToDataDefinition(hSimConnect, AircraftParametersDefinition, "PROP MAX RPM PERCENT:index", "Percent");
+    // aircraft parameters
+    addToDataDefinition(hSimConnect, SimDataDefinition, "Yoke X Indicator", "Position");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "Aileron Position", "Position");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "Aileron Trim PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "Elevator Trim PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "Rudder Trim PCT", "Percent Over 100");
+
+    // simconnect variables for testing
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "Rudder Pedal Position", "Position");
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "Rudder Pedal Indicator", "Position");
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "Rudder Position", "Position");
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "Rudder Deflection PCT", "Percent Over 100");
 }
 
 // add data definition for reception from SimConnect server
@@ -159,7 +162,8 @@ void Simulator::addToDataDefinition(HANDLE hSimConnect, SIMCONNECT_DATA_DEFINITI
 // request all subscribed data from SimConnect server
 void Simulator::dataRequest(void)
 {
-    requestDataOnSimObject(AircraftParametersRequest, AircraftParametersDefinition, SIMCONNECT_PERIOD_SECOND);
+    requestDataOnSimObject(SimDataRequest, SimDataDefinition, SIMCONNECT_PERIOD_SIM_FRAME);
+    requestDataOnSimObject(SimDataRequest, VariableCheckRequest, SIMCONNECT_PERIOD_SECOND);
 }
 
 // request data from SimConnect server - called from Simulator::dataRequest
@@ -186,16 +190,16 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
     std::stringstream ss;
     switch (pObjData->dwRequestID)
     {
-    case AircraftParametersRequest:
+    case VariableCheckDefinition:
+        break;
+    case SimDataRequest:
         // XXX print parameters for test
         {
-            SimData* pSimData = reinterpret_cast<SimData*>(&pObjData->dwData);
-            ss << " " << pSimData->yokeIndicatorY;
-            ss << " e=" << pSimData->elevatorPosition;
-            ss << " t=" << pSimData->elevatorTrimIndicator;
-            ss << " G=" << pSimData->gForce;
-            ss << " h=" << pSimData->gearHydraulicPressure;
-            ss << " p=" << pSimData->propPercent;
+            VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
+            ss << "p=" << pVariableCheck->rudderPedalPosition;
+            ss << " i=" << pVariableCheck->rudderPedalIndicator;
+            ss << " r=" << pVariableCheck->rudderPosition;
+            ss << " d=" << pVariableCheck->rudderDeflectionPCT;
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;

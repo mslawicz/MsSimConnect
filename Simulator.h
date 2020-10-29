@@ -34,20 +34,28 @@ private:
     std::chrono::milliseconds threadSleepTime{ std::chrono::milliseconds(LongSleep) };
     enum  DataDefineID
     {
-        AircraftParametersDefinition
+        SimDataDefinition,
+        VariableCheckDefinition
     };
     enum DataRequestID
     {
-        AircraftParametersRequest
+        SimDataRequest,
+        VariableCheckRequest
     };
     struct SimData
     {
-        double yokeIndicatorY;
-        double elevatorPosition;
-        double elevatorTrimIndicator;
-        double gForce;
-        double gearHydraulicPressure;
-        double propPercent;
+        double yokeXIndicator;
+        double aileronPosition;
+        double ailreronTrimPCT;
+        double elevatorTrimPCT;
+        double rudderTrimPCT;
+    };
+    struct VariableCheck
+    {
+        double rudderPedalPosition;
+        double rudderPedalIndicator;
+        double rudderPosition;
+        double rudderDeflectionPCT;
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };
