@@ -133,13 +133,20 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataDefinition, "Aileron Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataDefinition, "Elevator Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataDefinition, "Rudder Trim PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "NUMBER OF ENGINES", "Number");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "PROP MAX RPM PERCENT:1", "Percent");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "PROP MAX RPM PERCENT:2", "Percent");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "ESTIMATED CRUISE SPEED", "Knots");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "AIRSPEED INDICATED", "Knots");
 
     // simconnect variables for testing
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "Rudder Pedal Position", "Position");
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "Rudder Pedal Indicator", "Position");
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "Rudder Position", "Position");
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "Rudder Deflection PCT", "Percent Over 100");
-}
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "ACCELERATION BODY X", "Feet per second squared");
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "ACCELERATION BODY Y", "Feet per second squared");
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "ACCELERATION BODY Z", "Feet per second squared");
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "ROTATION VELOCITY BODY X", "Feet per second");
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "ROTATION VELOCITY BODY Y", "Feet per second");
+    addToDataDefinition(hSimConnect, VariableCheckRequest, "ROTATION VELOCITY BODY Z", "Feet per second");
+};
 
 // add data definition for reception from SimConnect server
 void Simulator::addToDataDefinition(HANDLE hSimConnect, SIMCONNECT_DATA_DEFINITION_ID defineID, std::string datumName, std::string unitsName, SIMCONNECT_DATATYPE datumType)
@@ -196,10 +203,12 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         // XXX print parameters for test
         {
             VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
-            ss << "p=" << pVariableCheck->rudderPedalPosition;
-            ss << " i=" << pVariableCheck->rudderPedalIndicator;
-            ss << " r=" << pVariableCheck->rudderPosition;
-            ss << " d=" << pVariableCheck->rudderDeflectionPCT;
+            ss << "acc=" << pVariableCheck->accBodyX;
+            ss << "  " << pVariableCheck->accBodyY;
+            ss << "  " << pVariableCheck->accBodyZ;
+            ss << "   rotVel=" << pVariableCheck->rotVelBodyX;
+            ss << "  " << pVariableCheck->rotVelBodyY;
+            ss << "  " << pVariableCheck->rotVelBodyZ;
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;

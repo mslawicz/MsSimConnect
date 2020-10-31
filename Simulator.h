@@ -49,13 +49,20 @@ private:
         double ailreronTrimPCT;
         double elevatorTrimPCT;
         double rudderTrimPCT;
+        double numberOfEngines;
+        double prop1Percent;
+        double prop2Percent;
+        double estimatedCruiseSpeed;
+        double indicatedAirspeed;
     };
     struct VariableCheck
     {
-        double rudderPedalPosition;
-        double rudderPedalIndicator;
-        double rudderPosition;
-        double rudderDeflectionPCT;
+        double accBodyX;
+        double accBodyY;
+        double accBodyZ;
+        double rotVelBodyX;
+        double rotVelBodyY;
+        double rotVelBodyZ;
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };
