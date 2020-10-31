@@ -57,9 +57,6 @@ private:
     };
     struct VariableCheck
     {
-        double accBodyX;
-        double accBodyY;
-        double accBodyZ;
         double rotVelBodyX;
         double rotVelBodyY;
         double rotVelBodyZ;

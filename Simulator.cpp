@@ -140,12 +140,9 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataDefinition, "AIRSPEED INDICATED", "Knots");
 
     // simconnect variables for testing
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "ACCELERATION BODY X", "Feet per second squared");
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "ACCELERATION BODY Y", "Feet per second squared");
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "ACCELERATION BODY Z", "Feet per second squared");
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "ROTATION VELOCITY BODY X", "Feet per second");
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "ROTATION VELOCITY BODY Y", "Feet per second");
-    addToDataDefinition(hSimConnect, VariableCheckRequest, "ROTATION VELOCITY BODY Z", "Feet per second");
+    addToDataDefinition(hSimConnect, VariableCheckDefinition, "ROTATION VELOCITY BODY X", "Radians per second");
+    addToDataDefinition(hSimConnect, VariableCheckDefinition, "ROTATION VELOCITY BODY Y", "Radians per second");
+    addToDataDefinition(hSimConnect, VariableCheckDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
 };
 
 // add data definition for reception from SimConnect server
@@ -170,7 +167,7 @@ void Simulator::addToDataDefinition(HANDLE hSimConnect, SIMCONNECT_DATA_DEFINITI
 void Simulator::dataRequest(void)
 {
     requestDataOnSimObject(SimDataRequest, SimDataDefinition, SIMCONNECT_PERIOD_SIM_FRAME);
-    requestDataOnSimObject(SimDataRequest, VariableCheckRequest, SIMCONNECT_PERIOD_SECOND);
+    requestDataOnSimObject(VariableCheckRequest, VariableCheckDefinition, SIMCONNECT_PERIOD_SECOND);
 }
 
 // request data from SimConnect server - called from Simulator::dataRequest
@@ -193,25 +190,36 @@ void Simulator::requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID RequestID, SIM
 // process data received from simulator
 void Simulator::procesSimData(SIMCONNECT_RECV* pData)
 {
+    static double rvbx = 0;
+    static double rvby = 0;
+    static double rvbz = 0;
+
     SIMCONNECT_RECV_SIMOBJECT_DATA* pObjData = static_cast<SIMCONNECT_RECV_SIMOBJECT_DATA*>(pData);
     std::stringstream ss;
     switch (pObjData->dwRequestID)
     {
-    case VariableCheckDefinition:
-        break;
     case SimDataRequest:
+        putchar('.');
+        break;
+
+    case VariableCheckRequest:
         // XXX print parameters for test
         {
             VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
-            ss << "acc=" << pVariableCheck->accBodyX;
-            ss << "  " << pVariableCheck->accBodyY;
-            ss << "  " << pVariableCheck->accBodyZ;
-            ss << "   rotVel=" << pVariableCheck->rotVelBodyX;
+            ss << "vel=" << pVariableCheck->rotVelBodyX;
             ss << "  " << pVariableCheck->rotVelBodyY;
             ss << "  " << pVariableCheck->rotVelBodyZ;
+            ss << "    delta=" << pVariableCheck->rotVelBodyX - rvbx;
+            ss << "  " << pVariableCheck->rotVelBodyY - rvby;
+            ss << "  " << pVariableCheck->rotVelBodyZ - rvbz;
             Console::getInstance().log(LogLevel::Info, ss.str());
+
+            rvbx = pVariableCheck->rotVelBodyX;
+            rvby = pVariableCheck->rotVelBodyY;
+            rvbz = pVariableCheck->rotVelBodyZ;
         }
         break;
+
     default:
         // unexpected data received
         ss << "unexpected data received, id=" << pObjData->dwRequestID;
