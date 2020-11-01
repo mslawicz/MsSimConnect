@@ -55,8 +55,9 @@ private:
         double prop2Percent;
         double estimatedCruiseSpeed;
         double indicatedAirspeed;
-        double rotationVelocityBodyX;
-        double rotationVelocityBodyZ;
+        double rotationVelocityBodyX;   // Rotation relative to aircraft X axis (pitch / elevator)
+        double rotationVelocityBodyY;   // Rotation relative to aircraft Y axis (vertical axis, yaw / rudder)
+        double rotationVelocityBodyZ;   // Rotation relative to aircraft Z axis (roll / aileron)
     };
     struct VariableCheck    // SimConnect data for verification and test
     {
@@ -66,9 +67,11 @@ private:
     USBHID* pJoystickLink{ nullptr };   // pointer to USB HID joystick device
     std::chrono::steady_clock::time_point lastSimDataTime;  // remembers time of last simData reception from server
     double lastRotationVelocityBodyX{ 0 };
+    double lastRotationVelocityBodyY{ 0 };
     double lastRotationVelocityBodyZ{ 0 };
-    double angularAccelerationX{ 0 };
-    double angularAccelerationZ{ 0 };
+    double angularAccelerationX{ 0 };       // for vibrations on joystick Y axis (pitch)
+    double angularAccelerationY{ 0 };       // for vibrations on rudder pedals (yaw)
+    double angularAccelerationZ{ 0 };       // for vibrations on joystick X axis (roll)
     SimData simData;    // current state of simData
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
 };

@@ -141,6 +141,7 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataDefinition, "ESTIMATED CRUISE SPEED", "Knots");
     addToDataDefinition(hSimConnect, SimDataDefinition, "AIRSPEED INDICATED", "Knots");
     addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY X", "Radians per second");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY Y", "Radians per second");
     addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
 
     // simconnect variables for testing
@@ -206,8 +207,10 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             lastSimDataTime = simDataTime;
 
             angularAccelerationX = simDataInterval != 0 ? (simData.rotationVelocityBodyX - lastRotationVelocityBodyX) / simDataInterval : 0;
+            angularAccelerationY = simDataInterval != 0 ? (simData.rotationVelocityBodyY - lastRotationVelocityBodyY) / simDataInterval : 0;
             angularAccelerationZ = simDataInterval != 0 ? (simData.rotationVelocityBodyZ - lastRotationVelocityBodyZ) / simDataInterval : 0;
             lastRotationVelocityBodyX = simData.rotationVelocityBodyX;
+            lastRotationVelocityBodyY = simData.rotationVelocityBodyY;
             lastRotationVelocityBodyZ = simData.rotationVelocityBodyZ;
         }
         break;
@@ -216,8 +219,8 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         // XXX print parameters for test
         {
             VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
-            ss << "  angAcc= " << angularAccelerationX;
-            ss << "  " << angularAccelerationZ;
+            ss << "rotVel " << simData.rotationVelocityBodyX << "  " << simData.rotationVelocityBodyY << "  " << simData.rotationVelocityBodyZ << "  ";
+            ss << "angAcc " << angularAccelerationX << "  " << angularAccelerationY << "  " << angularAccelerationZ;
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;
@@ -254,9 +257,11 @@ void Simulator::displaySimData()
     std::cout << "estimated cruise speed [kts] = " << simData.estimatedCruiseSpeed << std::endl;
     std::cout << "indicated airspeed [kts] = " << simData.indicatedAirspeed << std::endl;
     std::cout << "rotation velocity body X [rad/s] = " << simData.rotationVelocityBodyX << std::endl;
+    std::cout << "rotation velocity body Y [rad/s] = " << simData.rotationVelocityBodyY << std::endl;
     std::cout << "rotation velocity body Z [rad/s] = " << simData.rotationVelocityBodyZ << std::endl;
     //std::cout << " = " << simData << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
     std::cout << "angular acceleration X [rad/s2] = " << angularAccelerationX << std::endl;
+    std::cout << "angular acceleration Y [rad/s2] = " << angularAccelerationX << std::endl;
     std::cout << "angular acceleration Z [rad/s2] = " << angularAccelerationZ << std::endl;
 }
