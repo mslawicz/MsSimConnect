@@ -12,6 +12,8 @@ Simulator& Simulator::getInstance()
 Simulator::Simulator()
 {
     Console::getInstance().log(LogLevel::Debug, "Simulator object created");
+    lastSimDataTime = std::chrono::steady_clock::now();
+    Console::getInstance().registerCommand("simdata", "display last simulator data", std::bind(&Simulator::displaySimData, this));
 }
 
 Simulator::~Simulator()
@@ -138,11 +140,11 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataDefinition, "PROP MAX RPM PERCENT:2", "Percent");
     addToDataDefinition(hSimConnect, SimDataDefinition, "ESTIMATED CRUISE SPEED", "Knots");
     addToDataDefinition(hSimConnect, SimDataDefinition, "AIRSPEED INDICATED", "Knots");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY X", "Radians per second");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
 
     // simconnect variables for testing
-    addToDataDefinition(hSimConnect, VariableCheckDefinition, "ROTATION VELOCITY BODY X", "Radians per second");
     addToDataDefinition(hSimConnect, VariableCheckDefinition, "ROTATION VELOCITY BODY Y", "Radians per second");
-    addToDataDefinition(hSimConnect, VariableCheckDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
 };
 
 // add data definition for reception from SimConnect server
@@ -190,33 +192,36 @@ void Simulator::requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID RequestID, SIM
 // process data received from simulator
 void Simulator::procesSimData(SIMCONNECT_RECV* pData)
 {
-    static double rvbx = 0;
-    static double rvby = 0;
-    static double rvbz = 0;
-
     SIMCONNECT_RECV_SIMOBJECT_DATA* pObjData = static_cast<SIMCONNECT_RECV_SIMOBJECT_DATA*>(pData);
     std::stringstream ss;
     switch (pObjData->dwRequestID)
     {
     case SimDataRequest:
-        putchar('.');
+        {
+            putchar('.');
+            auto simDataTime = std::chrono::steady_clock::now();
+            SimData* pSimData = reinterpret_cast<SimData*>(&pObjData->dwData);
+            memcpy(&simData, pSimData, sizeof(SimData));
+            simDataInterval = std::chrono::duration<double>(simDataTime - lastSimDataTime).count();
+            lastSimDataTime = simDataTime;
+
+            //angularAccelerationX = (pSimData->rotationVelocityBodyX - lastRotationVelocityBodyX) / period;
+            //angularAccelerationZ = (pSimData->rotationVelocityBodyZ - lastRotationVelocityBodyZ) / period;
+            //lastRotationVelocityBodyX = pSimData->rotationVelocityBodyX;
+            //lastRotationVelocityBodyZ = pSimData->rotationVelocityBodyZ;
+        }
         break;
 
     case VariableCheckRequest:
         // XXX print parameters for test
         {
             VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
-            ss << "vel=" << pVariableCheck->rotVelBodyX;
-            ss << "  " << pVariableCheck->rotVelBodyY;
-            ss << "  " << pVariableCheck->rotVelBodyZ;
-            ss << "    delta=" << pVariableCheck->rotVelBodyX - rvbx;
-            ss << "  " << pVariableCheck->rotVelBodyY - rvby;
-            ss << "  " << pVariableCheck->rotVelBodyZ - rvbz;
+            ss << "rotVel= " << pVariableCheck->rotVelBodyY;
+            //ss << "rotVel= " << lastRotationVelocityBodyX;
+            //ss << "  " << lastRotationVelocityBodyZ;
+            //ss << "  angAcc= " << angularAccelerationX;
+            //ss << "  " << angularAccelerationZ;
             Console::getInstance().log(LogLevel::Info, ss.str());
-
-            rvbx = pVariableCheck->rotVelBodyX;
-            rvby = pVariableCheck->rotVelBodyY;
-            rvbz = pVariableCheck->rotVelBodyZ;
         }
         break;
 
@@ -233,4 +238,24 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
 {
     //XXX test
     putchar('i');
+}
+
+// display current data received from SimConnect server
+void Simulator::displaySimData()
+{
+    std::cout << "time from last SimData [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastSimDataTime).count() << std::endl;
+    std::cout << "last SimData interval [s] = " << simDataInterval << std::endl;
+    std::cout << "yoke indicator X = " << simData.yokeXIndicator << std::endl;
+    std::cout << "aileron position = " << simData.aileronPosition << std::endl;
+    std::cout << "aileron trim % = " << simData.ailreronTrimPCT << std::endl;
+    std::cout << "elevator trim % = " << simData.elevatorTrimPCT << std::endl;
+    std::cout << "rudder trim % = " << simData.rudderTrimPCT << std::endl;
+    std::cout << "number of engines = " << simData.numberOfEngines << std::endl;
+    std::cout << "propeller 1 % = " << simData.prop1Percent << std::endl;
+    std::cout << "propeller 2 % = " << simData.prop2Percent << std::endl;
+    std::cout << "estimated cruise speed [kts] = " << simData.estimatedCruiseSpeed << std::endl;
+    std::cout << "indicated airspeed [kts] = " << simData.indicatedAirspeed << std::endl;
+    std::cout << "rotation velocity body X [rad/s] = " << simData.rotationVelocityBodyX << std::endl;
+    std::cout << "rotation velocity body Z [rad/s] = " << simData.rotationVelocityBodyZ << std::endl;
+    //std::cout << " = " << simData << std::endl;
 }
