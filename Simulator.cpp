@@ -205,10 +205,10 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             simDataInterval = std::chrono::duration<double>(simDataTime - lastSimDataTime).count();
             lastSimDataTime = simDataTime;
 
-            //angularAccelerationX = (pSimData->rotationVelocityBodyX - lastRotationVelocityBodyX) / period;
-            //angularAccelerationZ = (pSimData->rotationVelocityBodyZ - lastRotationVelocityBodyZ) / period;
-            //lastRotationVelocityBodyX = pSimData->rotationVelocityBodyX;
-            //lastRotationVelocityBodyZ = pSimData->rotationVelocityBodyZ;
+            angularAccelerationX = simDataInterval != 0 ? (simData.rotationVelocityBodyX - lastRotationVelocityBodyX) / simDataInterval : 0;
+            angularAccelerationZ = simDataInterval != 0 ? (simData.rotationVelocityBodyZ - lastRotationVelocityBodyZ) / simDataInterval : 0;
+            lastRotationVelocityBodyX = simData.rotationVelocityBodyX;
+            lastRotationVelocityBodyZ = simData.rotationVelocityBodyZ;
         }
         break;
 
@@ -216,11 +216,8 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         // XXX print parameters for test
         {
             VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
-            ss << "rotVel= " << pVariableCheck->rotVelBodyY;
-            //ss << "rotVel= " << lastRotationVelocityBodyX;
-            //ss << "  " << lastRotationVelocityBodyZ;
-            //ss << "  angAcc= " << angularAccelerationX;
-            //ss << "  " << angularAccelerationZ;
+            ss << "  angAcc= " << angularAccelerationX;
+            ss << "  " << angularAccelerationZ;
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;
@@ -245,6 +242,7 @@ void Simulator::displaySimData()
 {
     std::cout << "time from last SimData [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastSimDataTime).count() << std::endl;
     std::cout << "last SimData interval [s] = " << simDataInterval << std::endl;
+    std::cout << "========== SimData ==========" << std::endl;
     std::cout << "yoke indicator X = " << simData.yokeXIndicator << std::endl;
     std::cout << "aileron position = " << simData.aileronPosition << std::endl;
     std::cout << "aileron trim % = " << simData.ailreronTrimPCT << std::endl;
@@ -258,4 +256,7 @@ void Simulator::displaySimData()
     std::cout << "rotation velocity body X [rad/s] = " << simData.rotationVelocityBodyX << std::endl;
     std::cout << "rotation velocity body Z [rad/s] = " << simData.rotationVelocityBodyZ << std::endl;
     //std::cout << " = " << simData << std::endl;
+    std::cout << "========== calculated data ==========" << std::endl;
+    std::cout << "angular acceleration X [rad/s2] = " << angularAccelerationX << std::endl;
+    std::cout << "angular acceleration Z [rad/s2] = " << angularAccelerationZ << std::endl;
 }
