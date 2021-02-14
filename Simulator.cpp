@@ -12,8 +12,9 @@ Simulator& Simulator::getInstance()
 Simulator::Simulator()
 {
     Console::getInstance().log(LogLevel::Debug, "Simulator object created");
-    lastSimDataTime = std::chrono::steady_clock::now();
+    lastSimDataTime = lastJoystickDataTime = std::chrono::steady_clock::now();
     Console::getInstance().registerCommand("simdata", "display last simulator data", std::bind(&Simulator::displaySimData, this));
+    Console::getInstance().registerCommand("joydata", "display last joystick data", std::bind(&Simulator::displayReceivedJoystickData, this));
 }
 
 Simulator::~Simulator()
@@ -47,10 +48,13 @@ void Simulator::handler(void)
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
         }
 
-        // XXX test of sending data to USB HID device
         if (pJoystickLink)
         {
-            uint8_t testData[64] = { 0x61, 0x62, 0x63 };
+            uint8_t testData[64] =
+            { 
+                static_cast<uint8_t>(simData.flapsNumHandlePositions),
+                static_cast<uint8_t>(simData.flapsHandleIndex),
+            };
             pJoystickLink->sendData(testData);
         }
 
@@ -143,9 +147,12 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY X", "Radians per second");
     addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY Y", "Radians per second");
     addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
+    addToDataDefinition(hSimConnect, SimDataDefinition, "FLAPS HANDLE INDEX", "Number");
 
     // simconnect variables for testing
-    addToDataDefinition(hSimConnect, VariableCheckDefinition, "ROTATION VELOCITY BODY Y", "Radians per second");
+    addToDataDefinition(hSimConnect, VariableCheckDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
+    addToDataDefinition(hSimConnect, VariableCheckDefinition, "FLAPS HANDLE INDEX", "Number");
 };
 
 // add data definition for reception from SimConnect server
@@ -219,8 +226,8 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         // XXX print parameters for test
         {
             VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
-            ss << "rotVel " << simData.rotationVelocityBodyX << "  " << simData.rotationVelocityBodyY << "  " << simData.rotationVelocityBodyZ << "  ";
-            ss << "angAcc " << angularAccelerationX << "  " << angularAccelerationY << "  " << angularAccelerationZ;
+            ss << "flaps numb pos " << pVariableCheck->flapsNumHandlePositions << "  ";
+            ss << "flaps index " << pVariableCheck->flapsHandleIndex;
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;
@@ -236,7 +243,8 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
 // parse received data fron joystick link
 void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
 {
-    //XXX test
+    lastJoystickDataTime = std::chrono::steady_clock::now();
+    joyData.flapsPositionIndex = receivedData[1];
     putchar('i');
 }
 
@@ -259,9 +267,19 @@ void Simulator::displaySimData()
     std::cout << "rotation velocity body X [rad/s] = " << simData.rotationVelocityBodyX << std::endl;
     std::cout << "rotation velocity body Y [rad/s] = " << simData.rotationVelocityBodyY << std::endl;
     std::cout << "rotation velocity body Z [rad/s] = " << simData.rotationVelocityBodyZ << std::endl;
+    std::cout << "number of flaps positions = " << simData.flapsNumHandlePositions << std::endl;
+    std::cout << "flaps lever position = " << simData.flapsHandleIndex << std::endl;
     //std::cout << " = " << simData << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
     std::cout << "angular acceleration X [rad/s2] = " << angularAccelerationX << std::endl;
     std::cout << "angular acceleration Y [rad/s2] = " << angularAccelerationX << std::endl;
     std::cout << "angular acceleration Z [rad/s2] = " << angularAccelerationZ << std::endl;
+}
+
+// display current data received from Joystick
+void Simulator::displayReceivedJoystickData()
+{
+    std::cout << "time from last joystick reception [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickDataTime).count() << std::endl;
+    std::cout << "========== Joystick Data ==========" << std::endl;
+    std::cout << "flaps lever position index = " << static_cast<int>(joyData.flapsPositionIndex) << std::endl;
 }

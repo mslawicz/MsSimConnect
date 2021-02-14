@@ -19,6 +19,7 @@ public:
     void setJoystickLink(USBHID* pLink) { pJoystickLink = pLink; }
     void parseReceivedData(std::vector<uint8_t> receivedData);      // parse received data fron joystick link
     void displaySimData();
+    void displayReceivedJoystickData();
 private:
     Simulator();
     ~Simulator();
@@ -58,14 +59,22 @@ private:
         double rotationVelocityBodyX;   // Rotation relative to aircraft X axis (pitch / elevator)
         double rotationVelocityBodyY;   // Rotation relative to aircraft Y axis (vertical axis, yaw / rudder)
         double rotationVelocityBodyZ;   // Rotation relative to aircraft Z axis (roll / aileron)
+        double flapsNumHandlePositions; // number of flaps positions excluding position 0 (extracted)
+        double flapsHandleIndex;        // flaps lever position 0..flapsNumHandlePositions
+    };
+    struct JoyData  // data received from joystick device
+    {
+        uint8_t flapsPositionIndex;
     };
     struct VariableCheck    // SimConnect data for verification and test
     {
-        double rotVelBodyY;
+        double flapsNumHandlePositions;
+        double flapsHandleIndex;
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };   // pointer to USB HID joystick device
     std::chrono::steady_clock::time_point lastSimDataTime;  // remembers time of last simData reception from server
+    std::chrono::steady_clock::time_point lastJoystickDataTime;  // remembers time of last joystick data reception
     double lastRotationVelocityBodyX{ 0 };
     double lastRotationVelocityBodyY{ 0 };
     double lastRotationVelocityBodyZ{ 0 };
@@ -74,5 +83,6 @@ private:
     double angularAccelerationZ{ 0 };       // for vibrations on joystick X axis (roll)
     SimData simData;    // current state of simData
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
+    JoyData joyData;    // data received from joystick
 };
 
