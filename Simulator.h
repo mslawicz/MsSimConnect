@@ -37,7 +37,8 @@ private:
     enum  DataDefineID      // SimConnect data subscription sets
     {
         SimDataDefinition,
-        VariableCheckDefinition
+        VariableCheckDefinition,
+        SimDataSetDefinition
     };
     enum DataRequestID      // SimConnect data request sets
     {
@@ -66,6 +67,10 @@ private:
     {
         uint8_t flapsPositionIndex;
     };
+    struct SimDataSet   // data to set in simulator
+    {
+        double flapsHandleIndex;
+    };
     struct VariableCheck    // SimConnect data for verification and test
     {
         double flapsNumHandlePositions;
@@ -84,5 +89,6 @@ private:
     SimData simData;    // current state of simData
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
     JoyData joyData;    // data received from joystick
+    SimDataSet simDataSet;      // data to be set in simulator
 };
 

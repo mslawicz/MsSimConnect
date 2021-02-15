@@ -153,6 +153,9 @@ void Simulator::subscribe(void)
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, VariableCheckDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
     addToDataDefinition(hSimConnect, VariableCheckDefinition, "FLAPS HANDLE INDEX", "Number");
+
+    // simconnect variables for setting
+    addToDataDefinition(hSimConnect, SimDataSetDefinition, "FLAPS HANDLE INDEX", "Number");
 };
 
 // add data definition for reception from SimConnect server
@@ -229,6 +232,26 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             ss << "flaps numb pos " << pVariableCheck->flapsNumHandlePositions << "  ";
             ss << "flaps index " << pVariableCheck->flapsHandleIndex;
             Console::getInstance().log(LogLevel::Info, ss.str());
+
+            //XXX test on SimConnect_SetDataOnSimObject
+            static int counter = 0;
+            if (++counter % 7 == 0)
+            {
+                ss.flush();
+                uint8_t flapsDetents = static_cast<uint8_t>(simData.flapsNumHandlePositions + 1);
+                simDataSet.flapsHandleIndex = static_cast<double>(counter % flapsDetents);
+                HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataSetDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataSet), &simDataSet);
+                if (hr == S_OK)
+                {
+                    ss << "new flaps position=" << simDataSet.flapsHandleIndex;
+                    Console::getInstance().log(LogLevel::Debug, ss.str());
+                }
+                else
+                {
+                    ss << "failed to set new flaps position";
+                    Console::getInstance().log(LogLevel::Error, ss.str());
+                }
+            }
         }
         break;
 
