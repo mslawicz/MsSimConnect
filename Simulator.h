@@ -90,5 +90,6 @@ private:
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
     JoyData joyData;    // data received from joystick
     SimDataSet simDataSet;      // data to be set in simulator
+    std::chrono::steady_clock::time_point lastJoystickSendTime;  // remembers time of last joystick data sending
 };
 

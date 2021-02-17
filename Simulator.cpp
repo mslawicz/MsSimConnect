@@ -12,7 +12,7 @@ Simulator& Simulator::getInstance()
 Simulator::Simulator()
 {
     Console::getInstance().log(LogLevel::Debug, "Simulator object created");
-    lastSimDataTime = lastJoystickDataTime = std::chrono::steady_clock::now();
+    lastSimDataTime = lastJoystickDataTime = lastJoystickSendTime = std::chrono::steady_clock::now();
     Console::getInstance().registerCommand("simdata", "display last simulator data", std::bind(&Simulator::displaySimData, this));
     Console::getInstance().registerCommand("joydata", "display last joystick data", std::bind(&Simulator::displayReceivedJoystickData, this));
 }
@@ -48,14 +48,21 @@ void Simulator::handler(void)
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
         }
 
-        if (pJoystickLink)
+        if (pJoystickLink &&
+            (std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickSendTime).count() > 0.02))
         {
             uint8_t testData[64] =
             { 
                 static_cast<uint8_t>(simData.flapsNumHandlePositions),
                 static_cast<uint8_t>(simData.flapsHandleIndex),
+                'F',
+                'L',
+                'A',
+                'P',
+                'S'
             };
             pJoystickLink->sendData(testData);
+            lastJoystickSendTime = std::chrono::steady_clock::now();
         }
 
         std::this_thread::sleep_for(threadSleepTime);
