@@ -48,30 +48,6 @@ void Simulator::handler(void)
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
         }
 
-        //XXX simulation of flaps change
-        static std::chrono::steady_clock::time_point lastFlapsChange;
-        if (std::chrono::duration<double>(std::chrono::steady_clock::now() - lastFlapsChange).count() > 3)
-        {
-            static const uint8_t noOfFlaps = 4;
-            static int flapsIndx = 0;
-            int prevFlapsIndx = flapsIndx;
-            flapsIndx += (rand() & 1) ? 1 : -1;
-            if (flapsIndx < 0)
-            {
-                flapsIndx = 1;
-            }
-            if (flapsIndx == noOfFlaps)
-            {
-                flapsIndx = noOfFlaps - 2;
-            }
-            std::stringstream sss;
-            sss << "flaps changed " << prevFlapsIndx << "->" << flapsIndx;
-            Console::getInstance().log(LogLevel::Info, sss.str());
-            simData.flapsNumHandlePositions = noOfFlaps;
-            simData.flapsHandleIndex = static_cast<uint8_t>(flapsIndx);
-            lastFlapsChange = std::chrono::steady_clock::now();
-        }
-
         if (pJoystickLink &&
             (std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickSendTime).count() > 0.02))
         {
