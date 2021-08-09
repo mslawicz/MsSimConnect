@@ -36,9 +36,9 @@ private:
     std::chrono::milliseconds threadSleepTime{ std::chrono::milliseconds(LongSleep) };      // idle time between handler calls
     enum  DataDefineID      // SimConnect data subscription sets
     {
-        SimDataDefinition,
-        VariableCheckDefinition,
-        SimDataSetDefinition
+        SimDataReadDefinition,
+        SimDataTestDefinition,
+        SimDataWriteDefinition
     };
     enum DataRequestID      // SimConnect data request sets
     {
@@ -73,8 +73,13 @@ private:
     };
     struct VariableCheck    // SimConnect data for verification and test
     {
-        double flapsNumHandlePositions;
-        double flapsHandleIndex;
+        double yokeYposition;
+        double yokeYpositionAP;
+        double yokeYindicator;
+        double elevatorDeflectionPCT;
+        double elevatorPosition;
+        double elevatorTrimIndicator;
+        double elevatorTrimPCT;
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };   // pointer to USB HID joystick device

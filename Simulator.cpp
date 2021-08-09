@@ -141,28 +141,33 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 void Simulator::subscribe(void)
 {
     // aircraft parameters
-    addToDataDefinition(hSimConnect, SimDataDefinition, "Yoke X Indicator", "Position");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "Aileron Position", "Position");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "Aileron Trim PCT", "Percent Over 100");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "Elevator Trim PCT", "Percent Over 100");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "Rudder Trim PCT", "Percent Over 100");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "NUMBER OF ENGINES", "Number");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "PROP MAX RPM PERCENT:1", "Percent");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "PROP MAX RPM PERCENT:2", "Percent");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "ESTIMATED CRUISE SPEED", "Knots");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "AIRSPEED INDICATED", "Knots");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY X", "Radians per second");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY Y", "Radians per second");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
-    addToDataDefinition(hSimConnect, SimDataDefinition, "FLAPS HANDLE INDEX", "Number");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Yoke X Indicator", "Position");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Aileron Position", "Position");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Aileron Trim PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Elevator Trim PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Rudder Trim PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "NUMBER OF ENGINES", "Number");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "PROP MAX RPM PERCENT:1", "Percent");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "PROP MAX RPM PERCENT:2", "Percent");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ESTIMATED CRUISE SPEED", "Knots");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AIRSPEED INDICATED", "Knots");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY X", "Radians per second");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY Y", "Radians per second");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS HANDLE INDEX", "Number");
 
     // simconnect variables for testing
-    addToDataDefinition(hSimConnect, VariableCheckDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
-    addToDataDefinition(hSimConnect, VariableCheckDefinition, "FLAPS HANDLE INDEX", "Number");
+    addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
+    addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION WITH AP", "Position");
+    addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y INDICATOR", "Position");
+    addToDataDefinition(hSimConnect, SimDataTestDefinition, "ELEVATOR DEFLECTION PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataTestDefinition, "ELEVATOR POSITION", "Position");
+    addToDataDefinition(hSimConnect, SimDataTestDefinition, "ELEVATOR TRIM INDICATOR", "Position");
+    addToDataDefinition(hSimConnect, SimDataTestDefinition, "ELEVATOR TRIM PCT", "Percent Over 100");
 
     // simconnect variables for setting
-    addToDataDefinition(hSimConnect, SimDataSetDefinition, "FLAPS HANDLE INDEX", "Number");
+    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "FLAPS HANDLE INDEX", "Number");
 };
 
 // add data definition for reception from SimConnect server
@@ -186,8 +191,8 @@ void Simulator::addToDataDefinition(HANDLE hSimConnect, SIMCONNECT_DATA_DEFINITI
 // request all subscribed data from SimConnect server
 void Simulator::dataRequest(void)
 {
-    requestDataOnSimObject(SimDataRequest, SimDataDefinition, SIMCONNECT_PERIOD_SIM_FRAME);
-    requestDataOnSimObject(VariableCheckRequest, VariableCheckDefinition, SIMCONNECT_PERIOD_SECOND);
+    requestDataOnSimObject(SimDataRequest, SimDataReadDefinition, SIMCONNECT_PERIOD_SIM_FRAME);
+    requestDataOnSimObject(VariableCheckRequest, SimDataTestDefinition, SIMCONNECT_PERIOD_SECOND);
 }
 
 // request data from SimConnect server - called from Simulator::dataRequest
@@ -236,8 +241,13 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         // XXX print parameters for test
         {
             VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
-            ss << "flaps numb pos " << pVariableCheck->flapsNumHandlePositions << "  ";
-            ss << "flaps index " << pVariableCheck->flapsHandleIndex;
+            ss << "yYp=" << pVariableCheck->yokeYposition << "  ";
+            ss << "yYpAP=" << pVariableCheck->yokeYpositionAP << "  ";
+            ss << "yYi=" << pVariableCheck->yokeYindicator << "  ";
+            ss << "edPCT=" << pVariableCheck->elevatorDeflectionPCT << "  ";
+            ss << "ep=" << pVariableCheck->elevatorPosition << "  ";
+            ss << "eti=" << pVariableCheck->elevatorTrimIndicator << "  ";
+            ss << "etPCT=" << pVariableCheck->elevatorTrimPCT << "  ";
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;
@@ -260,7 +270,7 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
         std::stringstream ss;
         ss << "joystick flaps change request " << static_cast<int>(joyData.flapsPositionIndex) << " -> " << static_cast<int>(receivedData[1]) << " : ";
         simDataSet.flapsHandleIndex = static_cast<double>(receivedData[1]);
-        HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataSetDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataSet), &simDataSet);
+        HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataSet), &simDataSet);
         if (hr == S_OK)
         {
             ss << "success";
