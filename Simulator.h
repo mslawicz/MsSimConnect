@@ -47,9 +47,7 @@ private:
     };
     struct SimData      // SimConnect data to be send or compute for HID joystick
     {
-        double yokeXIndicator;
         double aileronPosition;
-        double ailreronTrimPCT;
         double elevatorTrimPCT;
         double rudderTrimPCT;
         double numberOfEngines;
@@ -67,11 +65,12 @@ private:
     {
         uint8_t flapsPositionIndex;
     };
-    struct SimDataSet   // data to set in simulator
+    struct SimDataWrite   // data to set in simulator
     {
         double flapsHandleIndex;
+        double yokeXposition;
     };
-    struct VariableCheck    // SimConnect data for verification and test
+    struct SimDataTest    // SimConnect data for verification and test
     {
         double yokeYposition;
         double yokeYpositionAP;
@@ -94,7 +93,7 @@ private:
     SimData simData;    // current state of simData
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
     JoyData joyData;    // data received from joystick
-    SimDataSet simDataSet;      // data to be set in simulator
+    SimDataWrite simDataWrite;      // data to be write in simulator
     std::chrono::steady_clock::time_point lastJoystickSendTime;  // remembers time of last joystick data sending
 };
 

@@ -141,9 +141,7 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 void Simulator::subscribe(void)
 {
     // aircraft parameters
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Yoke X Indicator", "Position");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Aileron Position", "Position");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Aileron Trim PCT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Aileron Position", "Position");    // for WB yoke X zero force position
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "Elevator Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "Rudder Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "NUMBER OF ENGINES", "Number");
@@ -168,6 +166,7 @@ void Simulator::subscribe(void)
 
     // simconnect variables for setting
     addToDataDefinition(hSimConnect, SimDataWriteDefinition, "FLAPS HANDLE INDEX", "Number");
+    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "YOKE X POSITION", "Position");    // to be write as simulator yoke X position
 };
 
 // add data definition for reception from SimConnect server
@@ -240,7 +239,7 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
     case VariableCheckRequest:
         // XXX print parameters for test
         {
-            VariableCheck* pVariableCheck = reinterpret_cast<VariableCheck*>(&pObjData->dwData);
+            SimDataTest* pVariableCheck = reinterpret_cast<SimDataTest*>(&pObjData->dwData);
             ss << "yYp=" << pVariableCheck->yokeYposition << "  ";
             ss << "yYpAP=" << pVariableCheck->yokeYpositionAP << "  ";
             ss << "yYi=" << pVariableCheck->yokeYindicator << "  ";
@@ -269,8 +268,9 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
     {
         std::stringstream ss;
         ss << "joystick flaps change request " << static_cast<int>(joyData.flapsPositionIndex) << " -> " << static_cast<int>(receivedData[1]) << " : ";
-        simDataSet.flapsHandleIndex = static_cast<double>(receivedData[1]);
-        HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataSet), &simDataSet);
+        simDataWrite.flapsHandleIndex = static_cast<double>(receivedData[1]);
+        simDataWrite.yokeXposition = 0; //XXX temporary solution
+        HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWrite), &simDataWrite);
         if (hr == S_OK)
         {
             ss << "success";
@@ -290,10 +290,8 @@ void Simulator::displaySimData()
 {
     std::cout << "time from last SimData [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastSimDataTime).count() << std::endl;
     std::cout << "last SimData interval [s] = " << simDataInterval << std::endl;
-    std::cout << "========== SimData ==========" << std::endl;
-    std::cout << "yoke indicator X = " << simData.yokeXIndicator << std::endl;
+    std::cout << "========== SimDataRead ==========" << std::endl;
     std::cout << "aileron position = " << simData.aileronPosition << std::endl;
-    std::cout << "aileron trim % = " << simData.ailreronTrimPCT << std::endl;
     std::cout << "elevator trim % = " << simData.elevatorTrimPCT << std::endl;
     std::cout << "rudder trim % = " << simData.rudderTrimPCT << std::endl;
     std::cout << "number of engines = " << simData.numberOfEngines << std::endl;
@@ -306,7 +304,9 @@ void Simulator::displaySimData()
     std::cout << "rotation velocity body Z [rad/s] = " << simData.rotationVelocityBodyZ << std::endl;
     std::cout << "number of flaps positions = " << simData.flapsNumHandlePositions << std::endl;
     std::cout << "flaps lever position = " << simData.flapsHandleIndex << std::endl;
-    //std::cout << " = " << simData << std::endl;
+    std::cout << "========== SimDataWrite ==========" << std::endl;
+    std::cout << "yoke X position = " << simDataWrite.yokeXposition << std::endl;
+    std::cout << "flaps handle index = " << simDataWrite.flapsHandleIndex << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
     std::cout << "angular acceleration X [rad/s2] = " << angularAccelerationX << std::endl;
     std::cout << "angular acceleration Y [rad/s2] = " << angularAccelerationX << std::endl;
