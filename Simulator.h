@@ -63,7 +63,7 @@ private:
     };
     struct JoyData  // data received from joystick device
     {
-        uint8_t flapsPositionIndex;
+        float yokeXposition;      // requested position of yoke X axis
     };
     struct SimDataWrite   // data to set in simulator
     {
@@ -92,7 +92,7 @@ private:
     double angularAccelerationZ{ 0 };       // for vibrations on joystick X axis (roll)
     SimDataRead simDataRead;    // current state of simData
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
-    JoyData joyData;    // data received from joystick
+    JoyData joyData{ 0 };    // data received from joystick
     SimDataWrite simDataWrite;      // data to be written to simulator
     std::chrono::steady_clock::time_point lastJoystickSendTime;  // remembers time of last joystick data sending
     static const size_t JoySendBufferSize = 64;

@@ -261,26 +261,8 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
 void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
 {
     lastJoystickDataTime = std::chrono::steady_clock::now();
-
-    if (receivedData[1] != joyData.flapsPositionIndex)
-    {
-        std::stringstream ss;
-        ss << "joystick flaps change request " << static_cast<int>(joyData.flapsPositionIndex) << " -> " << static_cast<int>(receivedData[1]) << " : ";
-        simDataWrite.flapsHandleIndex = static_cast<double>(receivedData[1]);
-        simDataWrite.yokeXposition = 0; //XXX temporary solution
-        HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWrite), &simDataWrite);
-        if (hr == S_OK)
-        {
-            ss << "success";
-            Console::getInstance().log(LogLevel::Debug, ss.str());
-        }
-        else
-        {
-            ss << "failed to set in simConnect server";
-            Console::getInstance().log(LogLevel::Error, ss.str());
-        }
-        joyData.flapsPositionIndex = receivedData[1];
-    }
+    uint8_t* pData = &receivedData.data()[1];
+    joyData.yokeXposition = parseData<float>(pData);
 }
 
 // display current data received from SimConnect server
@@ -316,5 +298,5 @@ void Simulator::displayReceivedJoystickData()
 {
     std::cout << "time from last joystick reception [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickDataTime).count() << std::endl;
     std::cout << "========== Joystick Data ==========" << std::endl;
-    std::cout << "flaps lever position index = " << static_cast<int>(joyData.flapsPositionIndex) << std::endl;
+    std::cout << "yoke X position = " << joyData.yokeXposition << std::endl;
 }
