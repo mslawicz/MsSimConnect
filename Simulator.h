@@ -45,7 +45,7 @@ private:
         SimDataRequest,
         VariableCheckRequest
     };
-    struct SimData      // SimConnect data to be send or compute for HID joystick
+    struct SimDataRead      // SimConnect data to be send or compute for HID joystick
     {
         double aileronPosition;
         double elevatorTrimPCT;
@@ -90,7 +90,7 @@ private:
     double angularAccelerationX{ 0 };       // for vibrations on joystick Y axis (pitch)
     double angularAccelerationY{ 0 };       // for vibrations on rudder pedals (yaw)
     double angularAccelerationZ{ 0 };       // for vibrations on joystick X axis (roll)
-    SimData simData;    // current state of simData
+    SimDataRead simDataRead;    // current state of simData
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
     JoyData joyData;    // data received from joystick
     SimDataWrite simDataWrite;      // data to be write in simulator

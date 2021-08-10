@@ -53,8 +53,8 @@ void Simulator::handler(void)
         {
             uint8_t testData[64] =
             { 
-                static_cast<uint8_t>(simData.flapsNumHandlePositions),
-                static_cast<uint8_t>(simData.flapsHandleIndex),
+                static_cast<uint8_t>(simDataRead.flapsNumHandlePositions),
+                static_cast<uint8_t>(simDataRead.flapsHandleIndex),
                 'F',
                 'L',
                 'A',
@@ -222,17 +222,17 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         {
             putchar('.');
             auto simDataTime = std::chrono::steady_clock::now();
-            SimData* pSimData = reinterpret_cast<SimData*>(&pObjData->dwData);
-            memcpy(&simData, pSimData, sizeof(SimData));
+            SimDataRead* pSimDataRead = reinterpret_cast<SimDataRead*>(&pObjData->dwData);
+            memcpy(&simDataRead, pSimDataRead, sizeof(SimDataRead));
             simDataInterval = std::chrono::duration<double>(simDataTime - lastSimDataTime).count();
             lastSimDataTime = simDataTime;
 
-            angularAccelerationX = simDataInterval != 0 ? (simData.rotationVelocityBodyX - lastRotationVelocityBodyX) / simDataInterval : 0;
-            angularAccelerationY = simDataInterval != 0 ? (simData.rotationVelocityBodyY - lastRotationVelocityBodyY) / simDataInterval : 0;
-            angularAccelerationZ = simDataInterval != 0 ? (simData.rotationVelocityBodyZ - lastRotationVelocityBodyZ) / simDataInterval : 0;
-            lastRotationVelocityBodyX = simData.rotationVelocityBodyX;
-            lastRotationVelocityBodyY = simData.rotationVelocityBodyY;
-            lastRotationVelocityBodyZ = simData.rotationVelocityBodyZ;
+            angularAccelerationX = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyX - lastRotationVelocityBodyX) / simDataInterval : 0;
+            angularAccelerationY = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyY - lastRotationVelocityBodyY) / simDataInterval : 0;
+            angularAccelerationZ = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyZ - lastRotationVelocityBodyZ) / simDataInterval : 0;
+            lastRotationVelocityBodyX = simDataRead.rotationVelocityBodyX;
+            lastRotationVelocityBodyY = simDataRead.rotationVelocityBodyY;
+            lastRotationVelocityBodyZ = simDataRead.rotationVelocityBodyZ;
         }
         break;
 
@@ -291,19 +291,19 @@ void Simulator::displaySimData()
     std::cout << "time from last SimData [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastSimDataTime).count() << std::endl;
     std::cout << "last SimData interval [s] = " << simDataInterval << std::endl;
     std::cout << "========== SimDataRead ==========" << std::endl;
-    std::cout << "aileron position = " << simData.aileronPosition << std::endl;
-    std::cout << "elevator trim % = " << simData.elevatorTrimPCT << std::endl;
-    std::cout << "rudder trim % = " << simData.rudderTrimPCT << std::endl;
-    std::cout << "number of engines = " << simData.numberOfEngines << std::endl;
-    std::cout << "propeller 1 % = " << simData.prop1Percent << std::endl;
-    std::cout << "propeller 2 % = " << simData.prop2Percent << std::endl;
-    std::cout << "estimated cruise speed [kts] = " << simData.estimatedCruiseSpeed << std::endl;
-    std::cout << "indicated airspeed [kts] = " << simData.indicatedAirspeed << std::endl;
-    std::cout << "rotation velocity body X [rad/s] = " << simData.rotationVelocityBodyX << std::endl;
-    std::cout << "rotation velocity body Y [rad/s] = " << simData.rotationVelocityBodyY << std::endl;
-    std::cout << "rotation velocity body Z [rad/s] = " << simData.rotationVelocityBodyZ << std::endl;
-    std::cout << "number of flaps positions = " << simData.flapsNumHandlePositions << std::endl;
-    std::cout << "flaps lever position = " << simData.flapsHandleIndex << std::endl;
+    std::cout << "aileron position = " << simDataRead.aileronPosition << std::endl;
+    std::cout << "elevator trim % = " << simDataRead.elevatorTrimPCT << std::endl;
+    std::cout << "rudder trim % = " << simDataRead.rudderTrimPCT << std::endl;
+    std::cout << "number of engines = " << simDataRead.numberOfEngines << std::endl;
+    std::cout << "propeller 1 % = " << simDataRead.prop1Percent << std::endl;
+    std::cout << "propeller 2 % = " << simDataRead.prop2Percent << std::endl;
+    std::cout << "estimated cruise speed [kts] = " << simDataRead.estimatedCruiseSpeed << std::endl;
+    std::cout << "indicated airspeed [kts] = " << simDataRead.indicatedAirspeed << std::endl;
+    std::cout << "rotation velocity body X [rad/s] = " << simDataRead.rotationVelocityBodyX << std::endl;
+    std::cout << "rotation velocity body Y [rad/s] = " << simDataRead.rotationVelocityBodyY << std::endl;
+    std::cout << "rotation velocity body Z [rad/s] = " << simDataRead.rotationVelocityBodyZ << std::endl;
+    std::cout << "number of flaps positions = " << simDataRead.flapsNumHandlePositions << std::endl;
+    std::cout << "flaps lever position = " << simDataRead.flapsHandleIndex << std::endl;
     std::cout << "========== SimDataWrite ==========" << std::endl;
     std::cout << "yoke X position = " << simDataWrite.yokeXposition << std::endl;
     std::cout << "flaps handle index = " << simDataWrite.flapsHandleIndex << std::endl;
