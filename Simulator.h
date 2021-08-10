@@ -42,8 +42,8 @@ private:
     };
     enum DataRequestID      // SimConnect data request sets
     {
-        SimDataRequest,
-        VariableCheckRequest
+        SimDataReadRequest,
+        SimDataTestRequest
     };
     struct SimDataRead      // SimConnect data to be send or compute for HID joystick
     {

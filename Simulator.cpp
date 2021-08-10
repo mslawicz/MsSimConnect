@@ -49,6 +49,7 @@ void Simulator::handler(void)
             SimConnect_CallDispatch(hSimConnect, &Simulator::dispatchWrapper, nullptr);
         }
 
+        //send data to joystick
         if (pJoystickLink &&
             (std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickSendTime).count() > 0.02))
         {
@@ -188,8 +189,8 @@ void Simulator::addToDataDefinition(HANDLE hSimConnect, SIMCONNECT_DATA_DEFINITI
 // request all subscribed data from SimConnect server
 void Simulator::dataRequest(void)
 {
-    requestDataOnSimObject(SimDataRequest, SimDataReadDefinition, SIMCONNECT_PERIOD_SIM_FRAME);
-    requestDataOnSimObject(VariableCheckRequest, SimDataTestDefinition, SIMCONNECT_PERIOD_SECOND);
+    requestDataOnSimObject(SimDataReadRequest, SimDataReadDefinition, SIMCONNECT_PERIOD_SIM_FRAME);
+    requestDataOnSimObject(SimDataTestRequest, SimDataTestDefinition, SIMCONNECT_PERIOD_SECOND);
 }
 
 // request data from SimConnect server - called from Simulator::dataRequest
@@ -216,7 +217,7 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
     std::stringstream ss;
     switch (pObjData->dwRequestID)
     {
-    case SimDataRequest:
+    case SimDataReadRequest:
         {
             putchar('.');
             auto simDataTime = std::chrono::steady_clock::now();
@@ -234,7 +235,7 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         }
         break;
 
-    case VariableCheckRequest:
+    case SimDataTestRequest:
         // XXX print parameters for test
         {
             SimDataTest* pVariableCheck = reinterpret_cast<SimDataTest*>(&pObjData->dwData);
@@ -257,12 +258,24 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
     }
 }
 
-// parse received data fron joystick link
+// parse received data from joystick link
 void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
 {
     lastJoystickDataTime = std::chrono::steady_clock::now();
     uint8_t* pData = &receivedData.data()[1];
     joyData.yokeXposition = parseData<float>(pData);
+
+    //prepare data for simulator
+    simDataWrite.yokeXposition = joyData.yokeXposition;
+
+    //TODO change to one-time error
+    std::stringstream ss;
+    HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWrite), &simDataWrite);
+    if (hr != S_OK)
+    {
+        ss << "failed to set in simConnect server";
+        Console::getInstance().log(LogLevel::Error, ss.str());
+    }
 }
 
 // display current data received from SimConnect server
