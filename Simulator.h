@@ -47,7 +47,8 @@ private:
     };
     struct SimDataRead      // SimConnect data to be send or compute for HID joystick
     {
-        double aileronPosition;
+        double aileronPosition;     // used for yoke X zero position calculations (w/o vibratiobs)
+        double yokeXindicator;      // used for yoke X zero position calculations (w/o vibratiobs)
         double elevatorTrimPCT;
         double rudderTrimPCT;
         double numberOfEngines;

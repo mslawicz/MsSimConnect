@@ -56,7 +56,7 @@ void Simulator::handler(void)
             uint8_t* pBuffer = joySendBuffer;
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer);
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);
-            placeData<float>(static_cast<float>(simDataRead.aileronPosition), pBuffer);
+            placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);
             placeData<char>('J', pBuffer);
             placeData<char>('O', pBuffer);
             placeData<char>('Y', pBuffer);
@@ -140,7 +140,8 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 void Simulator::subscribe(void)
 {
     // aircraft parameters
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AILERON POSITION", "Position");    // send to yoke as X reference zero force position
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AILERON POSITION", "Position");    // used for yoke X zero position calculations (w/o vibratiobs)
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "YOKE X INDICATOR", "Position");    // used for yoke X zero position calculations (w/o vibratiobs)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "Elevator Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "Rudder Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "NUMBER OF ENGINES", "Number");
@@ -285,6 +286,7 @@ void Simulator::displaySimData()
     std::cout << "last SimData interval [s] = " << simDataInterval << std::endl;
     std::cout << "========== SimDataRead ==========" << std::endl;
     std::cout << "aileron position = " << simDataRead.aileronPosition << std::endl;
+    std::cout << "yoke X indicator = " << simDataRead.yokeXindicator << std::endl;
     std::cout << "elevator trim % = " << simDataRead.elevatorTrimPCT << std::endl;
     std::cout << "rudder trim % = " << simDataRead.rudderTrimPCT << std::endl;
     std::cout << "number of engines = " << simDataRead.numberOfEngines << std::endl;
