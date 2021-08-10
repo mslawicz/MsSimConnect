@@ -141,7 +141,7 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 void Simulator::subscribe(void)
 {
     // aircraft parameters
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "Aileron Position", "Position");    // for WB yoke X zero force position
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AILERON POSITION", "Position");    // send to yoke as X reference zero force position
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "Elevator Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "Rudder Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "NUMBER OF ENGINES", "Number");
@@ -166,7 +166,7 @@ void Simulator::subscribe(void)
 
     // simconnect variables for setting
     addToDataDefinition(hSimConnect, SimDataWriteDefinition, "FLAPS HANDLE INDEX", "Number");
-    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "YOKE X POSITION", "Position");    // to be write as simulator yoke X position
+    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "YOKE X POSITION", "Position");    // write to simulator as yoke current X position
 };
 
 // add data definition for reception from SimConnect server
