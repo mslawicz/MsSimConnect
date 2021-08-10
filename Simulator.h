@@ -93,7 +93,9 @@ private:
     SimDataRead simDataRead;    // current state of simData
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
     JoyData joyData;    // data received from joystick
-    SimDataWrite simDataWrite;      // data to be write in simulator
+    SimDataWrite simDataWrite;      // data to be written to simulator
     std::chrono::steady_clock::time_point lastJoystickSendTime;  // remembers time of last joystick data sending
+    static const size_t JoySendBufferSize = 64;
+    uint8_t joySendBuffer[JoySendBufferSize];
 };
 

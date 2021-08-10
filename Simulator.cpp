@@ -1,5 +1,6 @@
 #include "Simulator.h"
 #include "Console.h"
+#include "Convert.h"
 #include <thread>
 #include <sstream>
 
@@ -51,17 +52,14 @@ void Simulator::handler(void)
         if (pJoystickLink &&
             (std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickSendTime).count() > 0.02))
         {
-            uint8_t testData[64] =
-            { 
-                static_cast<uint8_t>(simDataRead.flapsNumHandlePositions),
-                static_cast<uint8_t>(simDataRead.flapsHandleIndex),
-                'F',
-                'L',
-                'A',
-                'P',
-                'S'
-            };
-            pJoystickLink->sendData(testData);
+            uint8_t* pBuffer = joySendBuffer;
+            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer);
+            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);
+            placeData<float>(static_cast<float>(simDataRead.aileronPosition), pBuffer);
+            placeData<char>('J', pBuffer);
+            placeData<char>('O', pBuffer);
+            placeData<char>('Y', pBuffer);
+            pJoystickLink->sendData(joySendBuffer);
             lastJoystickSendTime = std::chrono::steady_clock::now();
         }
 
