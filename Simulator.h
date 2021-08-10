@@ -48,6 +48,7 @@ private:
     struct SimDataRead      // SimConnect data to be send or compute for HID joystick
     {
         double aileronPosition;
+        double yokeXindicator;
         double elevatorTrimPCT;
         double rudderTrimPCT;
         double numberOfEngines;
