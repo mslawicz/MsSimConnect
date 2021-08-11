@@ -56,7 +56,7 @@ void Simulator::handler(void)
             uint8_t* pBuffer = joySendBuffer;
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer);
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);
-            placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);
+            placeData<float>(static_cast<float>(2.0F * (simDataRead.aileronPosition - simDataRead.yokeXindicator)), pBuffer);
             placeData<char>('J', pBuffer);
             placeData<char>('O', pBuffer);
             placeData<char>('Y', pBuffer);
@@ -154,6 +154,7 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS HANDLE INDEX", "Number");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AUTOPILOT MASTER", "Bool");
 
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
@@ -240,13 +241,17 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
         // XXX print parameters for test
         {
             SimDataTest* pVariableCheck = reinterpret_cast<SimDataTest*>(&pObjData->dwData);
-            ss << "yYp=" << pVariableCheck->yokeYposition << "  ";
-            ss << "yYpAP=" << pVariableCheck->yokeYpositionAP << "  ";
-            ss << "yYi=" << pVariableCheck->yokeYindicator << "  ";
-            ss << "edPCT=" << pVariableCheck->elevatorDeflectionPCT << "  ";
-            ss << "ep=" << pVariableCheck->elevatorPosition << "  ";
-            ss << "eti=" << pVariableCheck->elevatorTrimIndicator << "  ";
-            ss << "etPCT=" << pVariableCheck->elevatorTrimPCT << "  ";
+            //ss << "yYp=" << pVariableCheck->yokeYposition << "  ";
+            //ss << "yYpAP=" << pVariableCheck->yokeYpositionAP << "  ";
+            //ss << "yYi=" << pVariableCheck->yokeYindicator << "  ";
+            //ss << "edPCT=" << pVariableCheck->elevatorDeflectionPCT << "  ";
+            //ss << "ep=" << pVariableCheck->elevatorPosition << "  ";
+            //ss << "eti=" << pVariableCheck->elevatorTrimIndicator << "  ";
+            //ss << "etPCT=" << pVariableCheck->elevatorTrimPCT << "  ";
+            ss << "aP=" << simDataRead.aileronPosition << "  ";
+            ss << "yXi=" << simDataRead.yokeXindicator << "  ";
+            ss << "zero=" << simDataRead.aileronPosition - simDataRead.yokeXindicator  << "  ";
+            ss << "pil=" << simDataWrite.yokeXposition << "  ";
             Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;
@@ -267,7 +272,16 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
     joyData.yokeXposition = parseData<float>(pData);
 
     //prepare data for simulator
-    simDataWrite.yokeXposition = joyData.yokeXposition;
+    if (simDataRead.autopilotMaster != 0)
+    {
+        // autopilot is on
+        simDataWrite.yokeXposition = 0;
+    }
+    else
+    {
+        // autopilot is off
+        simDataWrite.yokeXposition = joyData.yokeXposition;
+    }
 
     //TODO change to one-time error
     std::stringstream ss;
@@ -299,6 +313,7 @@ void Simulator::displaySimData()
     std::cout << "rotation velocity body Z [rad/s] = " << simDataRead.rotationVelocityBodyZ << std::endl;
     std::cout << "number of flaps positions = " << simDataRead.flapsNumHandlePositions << std::endl;
     std::cout << "flaps lever position = " << simDataRead.flapsHandleIndex << std::endl;
+    std::cout << "autopilot master = " << simDataRead.autopilotMaster << std::endl;
     std::cout << "========== SimDataWrite ==========" << std::endl;
     std::cout << "yoke X position = " << simDataWrite.yokeXposition << std::endl;
     std::cout << "flaps handle index = " << simDataWrite.flapsHandleIndex << std::endl;

@@ -61,6 +61,7 @@ private:
         double rotationVelocityBodyZ;   // Rotation relative to aircraft Z axis (roll / aileron)
         double flapsNumHandlePositions; // number of flaps positions excluding position 0 (extracted)
         double flapsHandleIndex;        // flaps lever position 0..flapsNumHandlePositions
+        double autopilotMaster;         // is autopilot on?
     };
     struct JoyData  // data received from joystick device
     {
