@@ -29,6 +29,7 @@ void Simulator::handler(void)
 
     while (!Console::getInstance().isQuitRequest())
     {
+        // manage connection to simulator
         if (hSimConnect == nullptr)
         {
             // not connected to simulator - try to connect
@@ -57,9 +58,9 @@ void Simulator::handler(void)
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer);
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);
             placeData<float>(static_cast<float>(2.0F * (simDataRead.aileronPosition - simDataRead.yokeXindicator)), pBuffer);
-            placeData<char>('J', pBuffer);
-            placeData<char>('O', pBuffer);
-            placeData<char>('Y', pBuffer);
+            placeData<char>('S', pBuffer);
+            placeData<char>('I', pBuffer);
+            placeData<char>('M', pBuffer);
             pJoystickLink->sendData(joySendBuffer);
             lastJoystickSendTime = std::chrono::steady_clock::now();
         }
