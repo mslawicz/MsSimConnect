@@ -44,5 +44,7 @@ private:
     uint8_t sendBuffer[SendBufferSize];
     uint8_t sendErrorCounter{ 0 };
     static const uint8_t SendErrorLimit = 10;
+    static const int ConnectionOnPeriod = 5;        //ms
+    static const int ConnectionOffPeriod = 100;     //ms
 };
 

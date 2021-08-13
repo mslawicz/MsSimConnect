@@ -50,9 +50,11 @@ void USBHID::handler()
                 }
                 enableReception();
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(ConnectionOnPeriod));
         }
         else
         {
+            std::this_thread::sleep_for(std::chrono::milliseconds(ConnectionOffPeriod));
             // no USB connection - try to connect
             if (openConnection())
             {
@@ -68,8 +70,6 @@ void USBHID::handler()
                 }
             }
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     if (isOpen)
