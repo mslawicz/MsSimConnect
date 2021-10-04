@@ -57,7 +57,7 @@ void Simulator::handler(void)
             uint8_t* pBuffer = joySendBuffer;
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer);
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);
-            placeData<float>(static_cast<float>(2.0F * (simDataRead.aileronPosition - simDataRead.yokeXindicator)), pBuffer);
+            placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);
             placeData<uint32_t>(simDataFlags, pBuffer);
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
