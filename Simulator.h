@@ -29,6 +29,7 @@ private:
     void dataRequest(void);     // requests data from SimConnect server
     void requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID  RequestID, SIMCONNECT_DATA_DEFINITION_ID  DefineID, SIMCONNECT_PERIOD  Period);
     void procesSimData(SIMCONNECT_RECV* pData);     // processes data received from SimConnect server
+    void setSimdataFlag(uint8_t bitPosition, bool value);
     HANDLE hSimConnect{ nullptr };
     const uint8_t ShortSleep = 1;
     const uint8_t NormalSleep = 5;
@@ -99,5 +100,6 @@ private:
     std::chrono::steady_clock::time_point lastJoystickSendTime;  // remembers time of last joystick data sending
     static const size_t JoySendBufferSize = 64;
     uint8_t joySendBuffer[JoySendBufferSize];
+    uint32_t simDataFlags{ 0 };     //bit flags received from simulator
 };
 

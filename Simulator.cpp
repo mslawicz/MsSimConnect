@@ -58,6 +58,7 @@ void Simulator::handler(void)
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer);
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);
             placeData<float>(static_cast<float>(2.0F * (simDataRead.aileronPosition - simDataRead.yokeXindicator)), pBuffer);
+            placeData<uint32_t>(simDataFlags, pBuffer);
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -155,7 +156,7 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS HANDLE INDEX", "Number");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AUTOPILOT MASTER", "Bool");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AUTOPILOT MASTER", "Bool");        // autopilot master on/off
 
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
@@ -228,6 +229,8 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             memcpy(&simDataRead, pSimDataRead, sizeof(SimDataRead));
             simDataInterval = std::chrono::duration<double>(simDataTime - lastSimDataTime).count();
             lastSimDataTime = simDataTime;
+
+            setSimdataFlag(0, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
 
             angularAccelerationX = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyX - lastRotationVelocityBodyX) / simDataInterval : 0;
             angularAccelerationY = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyY - lastRotationVelocityBodyY) / simDataInterval : 0;
@@ -330,4 +333,17 @@ void Simulator::displayReceivedJoystickData()
     std::cout << "time from last joystick reception [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickDataTime).count() << std::endl;
     std::cout << "========== Joystick Data ==========" << std::endl;
     std::cout << "yoke X position = " << joyData.yokeXposition << std::endl;
+}
+
+//set/reset sim data flag
+void Simulator::setSimdataFlag(uint8_t bitPosition, bool value)
+{
+    if (value)
+    {
+        simDataFlags |= (1 << bitPosition);
+    }
+    else
+    {
+        simDataFlags &= ~(1 << bitPosition);
+    }
 }
