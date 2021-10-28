@@ -67,11 +67,13 @@ private:
     struct JoyData  // data received from joystick device
     {
         float yokeXposition;      // requested position of yoke X axis
+        float commandedThrottle;    // throttle value to be set in simulator
     };
     struct SimDataWrite   // data to set in simulator
     {
         double flapsHandleIndex;
         double yokeXposition;
+        double commandedThrottle;
     };
     struct SimDataTest    // SimConnect data for verification and test
     {

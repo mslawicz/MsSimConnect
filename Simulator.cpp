@@ -279,6 +279,7 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
     lastJoystickDataTime = std::chrono::steady_clock::now();
     uint8_t* pData = &receivedData.data()[1];
     joyData.yokeXposition = parseData<float>(pData);
+    joyData.commandedThrottle = parseData<float>(pData);
 
     //prepare data for simulator
     if (simDataRead.autopilotMaster != 0)
@@ -291,6 +292,7 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
         // autopilot is off
         simDataWrite.yokeXposition = joyData.yokeXposition;
     }
+    simDataWrite.commandedThrottle = joyData.commandedThrottle;
 
     std::stringstream ss;
     HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWrite), &simDataWrite);
@@ -332,6 +334,7 @@ void Simulator::displaySimData()
     std::cout << "========== SimDataWrite ==========" << std::endl;
     std::cout << "yoke X position = " << simDataWrite.yokeXposition << std::endl;
     std::cout << "flaps handle index = " << simDataWrite.flapsHandleIndex << std::endl;
+    std::cout << "commanded throttle = " << simDataWrite.commandedThrottle << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
     std::cout << "angular acceleration X [rad/s2] = " << angularAccelerationX << std::endl;
     std::cout << "angular acceleration Y [rad/s2] = " << angularAccelerationX << std::endl;
@@ -344,6 +347,7 @@ void Simulator::displayReceivedJoystickData()
     std::cout << "time from last joystick reception [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickDataTime).count() << std::endl;
     std::cout << "========== Joystick Data ==========" << std::endl;
     std::cout << "yoke X position = " << joyData.yokeXposition << std::endl;
+    std::cout << "commanded throttle = " << joyData.commandedThrottle << std::endl;
 }
 
 //set/reset sim data flag
