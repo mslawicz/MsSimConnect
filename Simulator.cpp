@@ -117,12 +117,14 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
         // connection closed
         Console::getInstance().log(LogLevel::Info, "SimConnect server connection closed");
         hSimConnect = nullptr;
+        setSimdataFlag(0, false);    //SimConnect data invalid
         threadSleepTime = std::chrono::milliseconds(LongSleep);
         break;
 
     case SIMCONNECT_RECV_ID_SIMOBJECT_DATA:
         // sim data received
         procesSimData(pData);
+        setSimdataFlag(0, true);    //SimConnect data valid
         threadSleepTime = std::chrono::milliseconds(ShortSleep);
         break;
 
@@ -235,7 +237,7 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             simDataInterval = std::chrono::duration<double>(simDataTime - lastSimDataTime).count();
             lastSimDataTime = simDataTime;
 
-            setSimdataFlag(0, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
+            setSimdataFlag(1, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
 
             angularAccelerationX = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyX - lastRotationVelocityBodyX) / simDataInterval : 0;
             angularAccelerationY = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyY - lastRotationVelocityBodyY) / simDataInterval : 0;
