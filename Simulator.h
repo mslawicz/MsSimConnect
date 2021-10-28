@@ -32,7 +32,7 @@ private:
     void setSimdataFlag(uint8_t bitPosition, bool value);
     HANDLE hSimConnect{ nullptr };
     const uint8_t ShortSleep = 1;
-    const uint8_t NormalSleep = 5;
+    const uint8_t NormalSleep = 8;
     const uint16_t LongSleep = 1000;
     std::chrono::milliseconds threadSleepTime{ std::chrono::milliseconds(LongSleep) };      // idle time between handler calls
     enum  DataDefineID      // SimConnect data subscription sets
