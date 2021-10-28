@@ -101,5 +101,7 @@ private:
     static const size_t JoySendBufferSize = 64;
     uint8_t joySendBuffer[JoySendBufferSize];
     uint32_t simDataFlags{ 0 };     //bit flags received from simulator
+    bool simConnectSetError{ false };   //last attempt to set in SimConnect failed?
+    bool simConnectResponseError{ false };  //last connection to SimConnect failed?
 };
 

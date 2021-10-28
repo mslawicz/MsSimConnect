@@ -38,10 +38,15 @@ void Simulator::handler(void)
             {
                 Console::getInstance().log(LogLevel::Info, "connecting to SimConnect server");
                 threadSleepTime = std::chrono::milliseconds(NormalSleep);
+                simConnectResponseError = false;
             }
             else
             {
-                Console::getInstance().log(LogLevel::Warning, "no response from SimConnect server");
+                if (!simConnectResponseError)
+                {
+                    Console::getInstance().log(LogLevel::Warning, "no response from SimConnect server");
+                    simConnectResponseError = true;
+                }
             }
         }
         else
@@ -287,13 +292,19 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
         simDataWrite.yokeXposition = joyData.yokeXposition;
     }
 
-    //TODO change to one-time error
     std::stringstream ss;
     HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWrite), &simDataWrite);
-    if (hr != S_OK)
+    if ((hr != S_OK) && (!simConnectSetError))
     {
         ss << "failed to set in simConnect server";
         Console::getInstance().log(LogLevel::Error, ss.str());
+        simConnectSetError = true;
+    }
+    if ((hr == S_OK) && (simConnectSetError))
+    {
+        ss << "sucseeded to set in simConnect server";
+        Console::getInstance().log(LogLevel::Info, ss.str());
+        simConnectSetError = false;
     }
 }
 
