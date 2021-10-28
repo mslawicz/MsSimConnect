@@ -63,6 +63,10 @@ private:
         double flapsNumHandlePositions; // number of flaps positions excluding position 0 (extracted)
         double flapsHandleIndex;        // flaps lever position 0..flapsNumHandlePositions
         double autopilotMaster;         // is autopilot on?
+        double throttleLever1Pos;       // throttle lever 1 position
+        double throttleLever2Pos;       // throttle lever 2 position
+        double throttleLever3Pos;       // throttle lever 3 position
+        double throttleLever4Pos;       // throttle lever 4 position
     };
     struct JoyData  // data received from joystick device
     {
@@ -73,7 +77,10 @@ private:
     {
         double flapsHandleIndex;
         double yokeXposition;
-        double commandedThrottle;
+        double commandedThrottle1;  //set throttle lever 1
+        double commandedThrottle2;  //set throttle lever 2
+        double commandedThrottle3;  //set throttle lever 3
+        double commandedThrottle4;  //set throttle lever 4
     };
     struct SimDataTest    // SimConnect data for verification and test
     {

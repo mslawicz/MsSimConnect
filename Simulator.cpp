@@ -149,8 +149,8 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 void Simulator::subscribe(void)
 {
     // aircraft parameters
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AILERON POSITION", "Position");    // used for yoke X zero position calculations (w/o vibratiobs)
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "YOKE X INDICATOR", "Position");    // used for yoke X zero position calculations (w/o vibratiobs)
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "AILERON POSITION", "Position");    // used for yoke X zero position calculations (w/o vibrations)
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "YOKE X INDICATOR", "Position");    // used for yoke X zero position calculations (w/o vibrations)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "Elevator Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "Rudder Trim PCT", "Percent Over 100");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "NUMBER OF ENGINES", "Number");
@@ -164,6 +164,10 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS HANDLE INDEX", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "AUTOPILOT MASTER", "Bool");        // autopilot master on/off
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "GENERAL ENG THROTTLE LEVER POSITION:1", "Percent");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "GENERAL ENG THROTTLE LEVER POSITION:2", "Percent");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "GENERAL ENG THROTTLE LEVER POSITION:3", "Percent");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "GENERAL ENG THROTTLE LEVER POSITION:4", "Percent");
 
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
@@ -177,6 +181,10 @@ void Simulator::subscribe(void)
     // simconnect variables for setting
     addToDataDefinition(hSimConnect, SimDataWriteDefinition, "FLAPS HANDLE INDEX", "Number");
     addToDataDefinition(hSimConnect, SimDataWriteDefinition, "YOKE X POSITION", "Position");    // write to simulator as yoke current X position
+    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "GENERAL ENG THROTTLE LEVER POSITION:1", "Percent");   // throttle lever 1 position
+    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "GENERAL ENG THROTTLE LEVER POSITION:2", "Percent");   // throttle lever 2 position
+    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "GENERAL ENG THROTTLE LEVER POSITION:3", "Percent");   // throttle lever 3 position
+    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "GENERAL ENG THROTTLE LEVER POSITION:4", "Percent");   // throttle lever 4 position
 };
 
 // add data definition for reception from SimConnect server
@@ -294,7 +302,7 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
         // autopilot is off
         simDataWrite.yokeXposition = joyData.yokeXposition;
     }
-    simDataWrite.commandedThrottle = joyData.commandedThrottle;
+    simDataWrite.commandedThrottle1 = simDataWrite.commandedThrottle2 = simDataWrite.commandedThrottle3 = simDataWrite.commandedThrottle4 = joyData.commandedThrottle;
 
     std::stringstream ss;
     HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWrite), &simDataWrite);
@@ -336,7 +344,7 @@ void Simulator::displaySimData()
     std::cout << "========== SimDataWrite ==========" << std::endl;
     std::cout << "yoke X position = " << simDataWrite.yokeXposition << std::endl;
     std::cout << "flaps handle index = " << simDataWrite.flapsHandleIndex << std::endl;
-    std::cout << "commanded throttle = " << simDataWrite.commandedThrottle << std::endl;
+    std::cout << "commanded throttle = " << simDataWrite.commandedThrottle1 << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
     std::cout << "angular acceleration X [rad/s2] = " << angularAccelerationX << std::endl;
     std::cout << "angular acceleration Y [rad/s2] = " << angularAccelerationX << std::endl;
