@@ -4,7 +4,7 @@ template <class T>
 class Arbiter
 {
 public:
-    bool setRequested(T remote, T local, unsigned short counterLoad);
+    bool setRequested(T remote, T local, uint16_t counterLoad);
 private:
     T lastRemote;
     T lastLocal;
@@ -13,7 +13,7 @@ private:
 };
 
 template <class T>
-bool Arbiter<T>::setRequested(T remote, T local, unsigned short counterLoad)
+bool Arbiter<T>::setRequested(T remote, T local, uint16_t counterLoad)
 {
     bool setRequest{ false };
 
