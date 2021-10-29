@@ -41,5 +41,8 @@
     <ClInclude Include="Convert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Arbiter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -152,6 +152,7 @@
     <ClCompile Include="USB.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Arbiter.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Convert.h" />
     <ClInclude Include="Simulator.h" />
