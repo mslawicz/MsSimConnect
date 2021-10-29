@@ -39,7 +39,8 @@ private:
     {
         SimDataReadDefinition,
         SimDataTestDefinition,
-        SimDataWriteDefinition
+        SimDataWriteDefinition,
+        SimDataSetThrottleDefinition
     };
     enum DataRequestID      // SimConnect data request sets
     {
@@ -73,10 +74,13 @@ private:
         float yokeXposition;      // requested position of yoke X axis
         float commandedThrottle;    // throttle value to be set in simulator
     };
-    struct SimDataWrite   // data to set in simulator
+    struct SimDataWriteGen   // general data to set in simulator
     {
         double flapsHandleIndex;
         double yokeXposition;
+    };
+    struct SimDataWriteThr   // throttle data to set in simulator
+    {
         double commandedThrottle1;  //set throttle lever 1
         double commandedThrottle2;  //set throttle lever 2
         double commandedThrottle3;  //set throttle lever 3
@@ -105,7 +109,8 @@ private:
     SimDataRead simDataRead;    // current state of simData
     double simDataInterval{ 0 };    // time between last two simData readouts [s]
     JoyData joyData{ 0 };    // data received from joystick
-    SimDataWrite simDataWrite;      // data to be written to simulator
+    SimDataWriteGen simDataWriteGen;      // general data to be written to simulator
+    SimDataWriteThr simDataWriteThr;        // throttle data to be written to simulator
     std::chrono::steady_clock::time_point lastJoystickSendTime;  // remembers time of last joystick data sending
     static const size_t JoySendBufferSize = 64;
     uint8_t joySendBuffer[JoySendBufferSize];

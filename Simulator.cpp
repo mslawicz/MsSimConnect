@@ -182,10 +182,12 @@ void Simulator::subscribe(void)
     // simconnect variables for setting
     addToDataDefinition(hSimConnect, SimDataWriteDefinition, "FLAPS HANDLE INDEX", "Number");
     addToDataDefinition(hSimConnect, SimDataWriteDefinition, "YOKE X POSITION", "Position");    // write to simulator as yoke current X position
-    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "GENERAL ENG THROTTLE LEVER POSITION:1", "Number");   // throttle lever 1 position
-    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "GENERAL ENG THROTTLE LEVER POSITION:2", "Number");   // throttle lever 2 position
-    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "GENERAL ENG THROTTLE LEVER POSITION:3", "Number");   // throttle lever 3 position
-    addToDataDefinition(hSimConnect, SimDataWriteDefinition, "GENERAL ENG THROTTLE LEVER POSITION:4", "Number");   // throttle lever 4 position
+
+    // simconnect variables for setting
+    addToDataDefinition(hSimConnect, SimDataSetThrottleDefinition, "GENERAL ENG THROTTLE LEVER POSITION:1", "Number");   // throttle lever 1 position
+    addToDataDefinition(hSimConnect, SimDataSetThrottleDefinition, "GENERAL ENG THROTTLE LEVER POSITION:2", "Number");   // throttle lever 2 position
+    addToDataDefinition(hSimConnect, SimDataSetThrottleDefinition, "GENERAL ENG THROTTLE LEVER POSITION:3", "Number");   // throttle lever 3 position
+    addToDataDefinition(hSimConnect, SimDataSetThrottleDefinition, "GENERAL ENG THROTTLE LEVER POSITION:4", "Number");   // throttle lever 4 position
 };
 
 // add data definition for reception from SimConnect server
@@ -270,7 +272,7 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             ss << "aP=" << simDataRead.aileronPosition << "  ";
             ss << "yXi=" << simDataRead.yokeXindicator << "  ";
             ss << "zero=" << simDataRead.aileronPosition - simDataRead.yokeXindicator  << "  ";
-            ss << "pil=" << simDataWrite.yokeXposition << "  ";
+            ss << "pil=" << simDataWriteGen.yokeXposition << "  ";
             //Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;
@@ -295,17 +297,17 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
     if (simDataRead.autopilotMaster != 0)
     {
         // autopilot is on
-        simDataWrite.yokeXposition = 0;
+        simDataWriteGen.yokeXposition = 0;
     }
     else
     {
         // autopilot is off
-        simDataWrite.yokeXposition = joyData.yokeXposition;
+        simDataWriteGen.yokeXposition = joyData.yokeXposition;
     }
-    simDataWrite.commandedThrottle1 = simDataWrite.commandedThrottle2 = simDataWrite.commandedThrottle3 = simDataWrite.commandedThrottle4 = joyData.commandedThrottle;
+    simDataWriteThr.commandedThrottle1 = simDataWriteThr.commandedThrottle2 = simDataWriteThr.commandedThrottle3 = simDataWriteThr.commandedThrottle4 = joyData.commandedThrottle;
 
     std::stringstream ss;
-    HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWrite), &simDataWrite);
+    HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWriteGen), &simDataWriteGen);
     if ((hr != S_OK) && (!simConnectSetError))
     {
         ss << "failed to set in simConnect server";
@@ -343,9 +345,9 @@ void Simulator::displaySimData()
     std::cout << "autopilot master = " << simDataRead.autopilotMaster << std::endl;
     std::cout << "throttle lever = " << simDataRead.throttleLever1Pos << std::endl;
     std::cout << "========== SimDataWrite ==========" << std::endl;
-    std::cout << "yoke X position = " << simDataWrite.yokeXposition << std::endl;
-    std::cout << "flaps handle index = " << simDataWrite.flapsHandleIndex << std::endl;
-    std::cout << "commanded throttle = " << simDataWrite.commandedThrottle1 << std::endl;
+    std::cout << "yoke X position = " << simDataWriteGen.yokeXposition << std::endl;
+    std::cout << "flaps handle index = " << simDataWriteGen.flapsHandleIndex << std::endl;
+    std::cout << "commanded throttle = " << simDataWriteThr.commandedThrottle1 << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
     std::cout << "angular acceleration X [rad/s2] = " << angularAccelerationX << std::endl;
     std::cout << "angular acceleration Y [rad/s2] = " << angularAccelerationX << std::endl;
