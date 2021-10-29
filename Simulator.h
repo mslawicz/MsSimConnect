@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "SimConnect.h"
 #include "USB.h"
+#include "Arbiter.h"
 #include <iostream>
 #include <chrono>
 #include <set>
@@ -117,5 +118,6 @@ private:
     uint32_t simDataFlags{ 0 };     //bit flags received from simulator
     bool simConnectSetError{ false };   //last attempt to set in SimConnect failed?
     bool simConnectResponseError{ false };  //last connection to SimConnect failed?
+    Arbiter<float> throttleArbiter;
 };
 

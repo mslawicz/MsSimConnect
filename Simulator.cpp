@@ -304,7 +304,6 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
         // autopilot is off
         simDataWriteGen.yokeXposition = joyData.yokeXposition;
     }
-    simDataWriteThr.commandedThrottle1 = simDataWriteThr.commandedThrottle2 = simDataWriteThr.commandedThrottle3 = simDataWriteThr.commandedThrottle4 = joyData.commandedThrottle;
 
     std::stringstream ss;
     HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWriteGen), &simDataWriteGen);
@@ -319,6 +318,13 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
         ss << "sucseeded to set in simConnect server";
         Console::getInstance().log(LogLevel::Info, ss.str());
         simConnectSetError = false;
+    }
+
+    if (throttleArbiter.setRequested(joyData.commandedThrottle, simDataRead.throttleLever1Pos, 10))
+    {
+        // request for setting throttle in simulator
+        simDataWriteThr.commandedThrottle1 = simDataWriteThr.commandedThrottle2 = simDataWriteThr.commandedThrottle3 = simDataWriteThr.commandedThrottle4 = joyData.commandedThrottle;
+        SimConnect_SetDataOnSimObject(hSimConnect, SimDataSetThrottleDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWriteThr), &simDataWriteThr);
     }
 }
 
