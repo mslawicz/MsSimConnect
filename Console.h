@@ -31,7 +31,7 @@ public:
     void help(void);
 private:
     Console();
-    LogLevel currentLevel{ LogLevel::Debug };
+    LogLevel currentLevel{ LogLevel::Info };
     const std::unordered_map<LogLevel, std::string> levelText
     {
         {LogLevel::None, ""},

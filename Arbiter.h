@@ -1,5 +1,7 @@
 #pragma once
 
+#include<cstdint>
+
 template <class T>
 class Arbiter
 {

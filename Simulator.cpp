@@ -325,6 +325,7 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
         // request for setting throttle in simulator
         simDataWriteThr.commandedThrottle1 = simDataWriteThr.commandedThrottle2 = simDataWriteThr.commandedThrottle3 = simDataWriteThr.commandedThrottle4 = joyData.commandedThrottle;
         SimConnect_SetDataOnSimObject(hSimConnect, SimDataSetThrottleDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWriteThr), &simDataWriteThr);
+        putchar('.');
     }
 }
 
