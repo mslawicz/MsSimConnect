@@ -42,7 +42,7 @@ void Simulator::handler(void)
             }
             else
             {
-                if (!simConnectResponseError)
+                if (!simConnectResponseError)   // the flag assures single-shot warning display
                 {
                     Console::getInstance().log(LogLevel::Warning, "no response from SimConnect server");
                     simConnectResponseError = true;
@@ -57,14 +57,13 @@ void Simulator::handler(void)
 
         //send data to joystick
         if (pJoystickLink &&
-            (std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickSendTime).count() > 0.02))
+            (std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickSendTime).count() > 0.01))
         {
             uint8_t* pBuffer = joySendBuffer;
-            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer);
-            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);
-            placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);
-            placeData<uint32_t>(simDataFlags, pBuffer);
-            placeData<float>(static_cast<float>(simDataRead.throttleLever1Pos), pBuffer);
+            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer); // number of flaps positions
+            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);    // current flaps index
+            placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);    // yoke X reference position
+            placeData<uint32_t>(simDataFlags, pBuffer);     // 32-bit data flags
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -159,16 +158,9 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "PROP MAX RPM PERCENT:2", "Percent");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ESTIMATED CRUISE SPEED", "Knots");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "AIRSPEED INDICATED", "Knots");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY X", "Radians per second");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY Y", "Radians per second");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY Z", "Radians per second");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS HANDLE INDEX", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "AUTOPILOT MASTER", "Bool");        // autopilot master on/off
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "GENERAL ENG THROTTLE LEVER POSITION:1", "Number");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "GENERAL ENG THROTTLE LEVER POSITION:2", "Number");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "GENERAL ENG THROTTLE LEVER POSITION:3", "Number");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "GENERAL ENG THROTTLE LEVER POSITION:4", "Number");
 
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
@@ -182,12 +174,6 @@ void Simulator::subscribe(void)
     // simconnect variables for setting
     addToDataDefinition(hSimConnect, SimDataWriteDefinition, "FLAPS HANDLE INDEX", "Number");
     addToDataDefinition(hSimConnect, SimDataWriteDefinition, "YOKE X POSITION", "Position");    // write to simulator as yoke current X position
-
-    // simconnect variables for setting
-    addToDataDefinition(hSimConnect, SimDataSetThrottleDefinition, "GENERAL ENG THROTTLE LEVER POSITION:1", "Number");   // throttle lever 1 position
-    addToDataDefinition(hSimConnect, SimDataSetThrottleDefinition, "GENERAL ENG THROTTLE LEVER POSITION:2", "Number");   // throttle lever 2 position
-    addToDataDefinition(hSimConnect, SimDataSetThrottleDefinition, "GENERAL ENG THROTTLE LEVER POSITION:3", "Number");   // throttle lever 3 position
-    addToDataDefinition(hSimConnect, SimDataSetThrottleDefinition, "GENERAL ENG THROTTLE LEVER POSITION:4", "Number");   // throttle lever 4 position
 };
 
 // add data definition for reception from SimConnect server
@@ -248,13 +234,6 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             lastSimDataTime = simDataTime;
 
             setSimdataFlag(1, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
-
-            angularAccelerationX = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyX - lastRotationVelocityBodyX) / simDataInterval : 0;
-            angularAccelerationY = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyY - lastRotationVelocityBodyY) / simDataInterval : 0;
-            angularAccelerationZ = simDataInterval != 0 ? (simDataRead.rotationVelocityBodyZ - lastRotationVelocityBodyZ) / simDataInterval : 0;
-            lastRotationVelocityBodyX = simDataRead.rotationVelocityBodyX;
-            lastRotationVelocityBodyY = simDataRead.rotationVelocityBodyY;
-            lastRotationVelocityBodyZ = simDataRead.rotationVelocityBodyZ;
         }
         break;
 
@@ -272,7 +251,6 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             ss << "aP=" << simDataRead.aileronPosition << "  ";
             ss << "yXi=" << simDataRead.yokeXindicator << "  ";
             ss << "zero=" << simDataRead.aileronPosition - simDataRead.yokeXindicator  << "  ";
-            ss << "pil=" << simDataWriteGen.yokeXposition << "  ";
             //Console::getInstance().log(LogLevel::Info, ss.str());
         }
         break;
@@ -290,20 +268,6 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
 {
     lastJoystickDataTime = std::chrono::steady_clock::now();
     uint8_t* pData = &receivedData.data()[1];
-    joyData.yokeXposition = parseData<float>(pData);
-    joyData.commandedThrottle = parseData<float>(pData);
-
-    //prepare data for simulator
-    if (simDataRead.autopilotMaster != 0)
-    {
-        // autopilot is on
-        simDataWriteGen.yokeXposition = 0;
-    }
-    else
-    {
-        // autopilot is off
-        simDataWriteGen.yokeXposition = joyData.yokeXposition;
-    }
 
     std::stringstream ss;
     HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWriteGen), &simDataWriteGen);
@@ -318,14 +282,6 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
         ss << "sucseeded to set in simConnect server";
         Console::getInstance().log(LogLevel::Info, ss.str());
         simConnectSetError = false;
-    }
-
-    if (throttleArbiter.setRequested(joyData.commandedThrottle, simDataRead.throttleLever1Pos, 10))
-    {
-        // request for setting throttle in simulator
-        simDataWriteThr.commandedThrottle1 = simDataWriteThr.commandedThrottle2 = simDataWriteThr.commandedThrottle3 = simDataWriteThr.commandedThrottle4 = joyData.commandedThrottle;
-        SimConnect_SetDataOnSimObject(hSimConnect, SimDataSetThrottleDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWriteThr), &simDataWriteThr);
-        putchar('.');
     }
 }
 
@@ -344,21 +300,11 @@ void Simulator::displaySimData()
     std::cout << "propeller 2 % = " << simDataRead.prop2Percent << std::endl;
     std::cout << "estimated cruise speed [kts] = " << simDataRead.estimatedCruiseSpeed << std::endl;
     std::cout << "indicated airspeed [kts] = " << simDataRead.indicatedAirspeed << std::endl;
-    std::cout << "rotation velocity body X [rad/s] = " << simDataRead.rotationVelocityBodyX << std::endl;
-    std::cout << "rotation velocity body Y [rad/s] = " << simDataRead.rotationVelocityBodyY << std::endl;
-    std::cout << "rotation velocity body Z [rad/s] = " << simDataRead.rotationVelocityBodyZ << std::endl;
     std::cout << "number of flaps positions = " << simDataRead.flapsNumHandlePositions << std::endl;
     std::cout << "flaps lever position = " << simDataRead.flapsHandleIndex << std::endl;
     std::cout << "autopilot master = " << simDataRead.autopilotMaster << std::endl;
-    std::cout << "throttle lever = " << simDataRead.throttleLever1Pos << std::endl;
     std::cout << "========== SimDataWrite ==========" << std::endl;
-    std::cout << "yoke X position = " << simDataWriteGen.yokeXposition << std::endl;
-    std::cout << "flaps handle index = " << simDataWriteGen.flapsHandleIndex << std::endl;
-    std::cout << "commanded throttle = " << simDataWriteThr.commandedThrottle1 << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
-    std::cout << "angular acceleration X [rad/s2] = " << angularAccelerationX << std::endl;
-    std::cout << "angular acceleration Y [rad/s2] = " << angularAccelerationX << std::endl;
-    std::cout << "angular acceleration Z [rad/s2] = " << angularAccelerationZ << std::endl;
 }
 
 // display current data received from Joystick
@@ -366,8 +312,6 @@ void Simulator::displayReceivedJoystickData()
 {
     std::cout << "time from last joystick reception [s] = " << std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickDataTime).count() << std::endl;
     std::cout << "========== Joystick Data ==========" << std::endl;
-    std::cout << "yoke X position = " << joyData.yokeXposition << std::endl;
-    std::cout << "commanded throttle = " << joyData.commandedThrottle << std::endl;
 }
 
 //set/reset sim data flag
