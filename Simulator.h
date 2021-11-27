@@ -62,6 +62,9 @@ private:
         double flapsNumHandlePositions; // number of flaps positions excluding position 0 (extracted)
         double flapsHandleIndex;        // flaps lever position 0..flapsNumHandlePositions
         double autopilotMaster;         // is autopilot on?
+        double rotationAccBodyY;        // rotation acceleration body Y
+        double rotationVelBodyY;        // rotation velocity body Y
+        double accelerationBodyY;       // acceleration in Y axis
     };
     struct JoyData  // data received from joystick device
     {

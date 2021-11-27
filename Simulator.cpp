@@ -65,6 +65,7 @@ void Simulator::handler(void)
             placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);    // yoke X reference position
             placeData<uint32_t>(simDataFlags, pBuffer);     // 32-bit data flags
             placeData<float>(static_cast<float>(simDataCalculated.normalizedSpeed), pBuffer);   // aircraft indicated speed referenced to cruise speed
+            placeData<float>(static_cast<float>(simDataRead.accelerationBodyY), pBuffer);   // acceleration body Y for rudder forces
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -162,6 +163,9 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS HANDLE INDEX", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "AUTOPILOT MASTER", "Bool");        // autopilot master on/off
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY Y", "Radians per second squared");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION VELOCITY BODY Y", "Meters per second");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ACCELERATION BODY Y", "Meters per second squared");
 
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
