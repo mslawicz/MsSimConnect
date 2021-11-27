@@ -31,6 +31,7 @@ private:
     void requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID  RequestID, SIMCONNECT_DATA_DEFINITION_ID  DefineID, SIMCONNECT_PERIOD  Period);
     void procesSimData(SIMCONNECT_RECV* pData);     // processes data received from SimConnect server
     void setSimdataFlag(uint8_t bitPosition, bool value);
+    void processNewData();  // process received data from SimConnect and prepare for joystick
     HANDLE hSimConnect{ nullptr };
     const uint8_t ShortSleep = 1;
     const uint8_t NormalSleep = 10;
@@ -80,6 +81,10 @@ private:
         double elevatorTrimIndicator;
         double elevatorTrimPCT;
     };
+    struct SimDataCalculated    // calculated simulation data
+    {
+        double normalizedSpeed;     // speed referenced to cruise speed
+    };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };   // pointer to USB HID joystick device
     std::chrono::steady_clock::time_point lastSimDataTime;  // remembers time of last simData reception from server
@@ -94,5 +99,6 @@ private:
     uint32_t simDataFlags{ 0 };     //bit flags received from simulator
     bool simConnectSetError{ false };   //last attempt to set in SimConnect failed?
     bool simConnectResponseError{ false };  //last connection to SimConnect failed?
+    SimDataCalculated simDataCalculated;    // calculated parameters
 };
 

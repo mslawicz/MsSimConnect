@@ -64,6 +64,7 @@ void Simulator::handler(void)
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);    // current flaps index
             placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);    // yoke X reference position
             placeData<uint32_t>(simDataFlags, pBuffer);     // 32-bit data flags
+            placeData<float>(static_cast<float>(simDataCalculated.normalizedSpeed), pBuffer);   // aircraft indicated speed referenced to cruise speed
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -232,8 +233,7 @@ void Simulator::procesSimData(SIMCONNECT_RECV* pData)
             memcpy(&simDataRead, pSimDataRead, sizeof(SimDataRead));
             simDataInterval = std::chrono::duration<double>(simDataTime - lastSimDataTime).count();
             lastSimDataTime = simDataTime;
-
-            setSimdataFlag(1, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
+            processNewData();
         }
         break;
 
@@ -325,4 +325,12 @@ void Simulator::setSimdataFlag(uint8_t bitPosition, bool value)
     {
         simDataFlags &= ~(1 << bitPosition);
     }
+}
+
+// process received data from SimConnect and prepare for joystick
+void Simulator::processNewData()
+{
+    setSimdataFlag(1, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
+
+    simDataCalculated.normalizedSpeed = (simDataRead.estimatedCruiseSpeed != 0) ? simDataRead.indicatedAirspeed / simDataRead.estimatedCruiseSpeed : 0;
 }
