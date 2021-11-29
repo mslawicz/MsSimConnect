@@ -68,8 +68,6 @@ void Simulator::handler(void)
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyX), pBuffer);   // rotation acceleration body X for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyY), pBuffer);   // rotation acceleration body Y for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyZ), pBuffer);   // rotation acceleration body Z for yoke forces
-            placeData<float>(static_cast<float>(simDataRead.accelerationBodyX), pBuffer);   // acceleration body X for yoke forces
-            placeData<float>(static_cast<float>(simDataRead.accelerationBodyY), pBuffer);   // acceleration body Y for yoke forces
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -170,8 +168,6 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY X", "Radians per second squared");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY Y", "Radians per second squared");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY Z", "Radians per second squared");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ACCELERATION BODY X", "Meters per second squared");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ACCELERATION BODY Y", "Meters per second squared");
 
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
@@ -313,6 +309,7 @@ void Simulator::displaySimData()
     std::cout << "number of flaps positions = " << simDataRead.flapsNumHandlePositions << std::endl;
     std::cout << "flaps lever position = " << simDataRead.flapsHandleIndex << std::endl;
     std::cout << "autopilot master = " << simDataRead.autopilotMaster << std::endl;
+    std::cout << "rotation acc body X Y Z = " << simDataRead.rotationAccBodyX <<", " << simDataRead.rotationAccBodyY << ", " << simDataRead.rotationAccBodyZ << std::endl;
     std::cout << "========== SimDataWrite ==========" << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
 }
