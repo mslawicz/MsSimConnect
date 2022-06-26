@@ -71,6 +71,7 @@ private:
         double rotationAccBodyX;        // rotation acceleration body X
         double rotationAccBodyY;        // rotation acceleration body Y
         double rotationAccBodyZ;        // rotation acceleration body Z
+        double engineType;              // enumerated engine type
     };
     struct JoyData  // data received from joystick device
     {

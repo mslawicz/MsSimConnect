@@ -68,6 +68,7 @@ void Simulator::handler(void)
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyX), pBuffer);   // rotation acceleration body X for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyY), pBuffer);   // rotation acceleration body Y for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyZ), pBuffer);   // rotation acceleration body Z for yoke forces
+            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.engineType), pBuffer);     // enumerated engine type
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -168,6 +169,7 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY X", "Radians per second squared");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY Y", "Radians per second squared");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY Z", "Radians per second squared");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "ENGINE TYPE", "Enum");
 
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
@@ -310,6 +312,7 @@ void Simulator::displaySimData()
     std::cout << "flaps lever position = " << simDataRead.flapsHandleIndex << std::endl;
     std::cout << "autopilot master = " << simDataRead.autopilotMaster << std::endl;
     std::cout << "rotation acc body X Y Z = " << simDataRead.rotationAccBodyX <<", " << simDataRead.rotationAccBodyY << ", " << simDataRead.rotationAccBodyZ << std::endl;
+    std::cout << "engine type = " << simDataRead.engineType << std::endl;
     std::cout << "========== SimDataWrite ==========" << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
 }
