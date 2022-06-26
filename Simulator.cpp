@@ -68,6 +68,7 @@ void Simulator::handler(void)
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyZ), pBuffer);   // rotation acceleration body Z for yoke forces
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.engineType), pBuffer);     // enumerated engine type
             placeData<float>(static_cast<float>(simDataCalculated.flapsPosPct), pBuffer);  // percentage of flaps deflection
+            placeData<float>(static_cast<float>(simDataCalculated.propellerPct), pBuffer);  // percentage of max propeller rpm
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -314,6 +315,7 @@ void Simulator::displaySimData()
     std::cout << "========== calculated data ==========" << std::endl;
     std::cout << "normalized speed % = " << simDataCalculated.normalizedSpeed << std::endl;
     std::cout << "flaps % = " << simDataCalculated.flapsPosPct << std::endl;
+    std::cout << "propeller % = " << simDataCalculated.propellerPct << std::endl;
 }
 
 // display current data received from Joystick
@@ -344,4 +346,5 @@ void Simulator::processNewData()
     setSimdataFlag(SimDataFlag::AutopilotOn, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
     simDataCalculated.normalizedSpeed = (simDataRead.estimatedCruiseSpeed != 0) ? simDataRead.indicatedAirspeed / simDataRead.estimatedCruiseSpeed : 0;
     simDataCalculated.flapsPosPct = (simDataRead.flapsLeftPosPct > simDataRead.flapsRightPosPct) ? simDataRead.flapsLeftPosPct : simDataRead.flapsRightPosPct;
+    simDataCalculated.propellerPct = (simDataRead.prop1Percent > simDataRead.prop2Percent) ? simDataRead.prop1Percent : simDataRead.prop2Percent;
 }

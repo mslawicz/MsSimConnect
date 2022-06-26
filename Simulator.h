@@ -95,6 +95,7 @@ private:
     {
         double normalizedSpeed;     // speed referenced to cruise speed
         double flapsPosPct;         // percentage of flaps deflection
+        double propellerPct;        // percentage of propeller max rpm
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };   // pointer to USB HID joystick device
