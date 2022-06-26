@@ -277,20 +277,21 @@ void Simulator::parseReceivedData(std::vector<uint8_t> receivedData)
     lastJoystickDataTime = std::chrono::steady_clock::now();
     uint8_t* pData = &receivedData.data()[1];
 
-    std::stringstream ss;
-    HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWriteGen), &simDataWriteGen);
-    if ((hr != S_OK) && (!simConnectSetError))
-    {
-        ss << "failed to set in simConnect server";
-        Console::getInstance().log(LogLevel::Error, ss.str());
-        simConnectSetError = true;
-    }
-    if ((hr == S_OK) && (simConnectSetError))
-    {
-        ss << "sucseeded to set in simConnect server";
-        Console::getInstance().log(LogLevel::Info, ss.str());
-        simConnectSetError = false;
-    }
+    //currently nothing is set in SimConnect
+    //std::stringstream ss;
+    //HRESULT hr = SimConnect_SetDataOnSimObject(hSimConnect, SimDataWriteDefinition, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(SimDataWriteGen), &simDataWriteGen);
+    //if ((hr != S_OK) && (!simConnectSetError))
+    //{
+    //    ss << "failed to set in simConnect server";
+    //    Console::getInstance().log(LogLevel::Error, ss.str());
+    //    simConnectSetError = true;
+    //}
+    //if ((hr == S_OK) && (simConnectSetError))
+    //{
+    //    ss << "sucseeded to set in simConnect server";
+    //    Console::getInstance().log(LogLevel::Info, ss.str());
+    //    simConnectSetError = false;
+    //}
 }
 
 // display current data received from SimConnect server
