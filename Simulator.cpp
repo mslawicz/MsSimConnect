@@ -121,14 +121,14 @@ void Simulator::dispatch(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
         // connection closed
         Console::getInstance().log(LogLevel::Info, "SimConnect server connection closed");
         hSimConnect = nullptr;
-        setSimdataFlag(0, false);    //SimConnect data invalid
+        setSimdataFlag(SimDataFlag::SimDataValid, false);    //SimConnect data invalid
         threadSleepTime = std::chrono::milliseconds(LongSleep);
         break;
 
     case SIMCONNECT_RECV_ID_SIMOBJECT_DATA:
         // sim data received
         procesSimData(pData);
-        setSimdataFlag(0, true);    //SimConnect data valid
+        setSimdataFlag(SimDataFlag::SimDataValid, true);    //SimConnect data valid
         threadSleepTime = std::chrono::milliseconds(ShortSleep);
         break;
 
@@ -322,8 +322,10 @@ void Simulator::displayReceivedJoystickData()
 }
 
 //set/reset sim data flag
-void Simulator::setSimdataFlag(uint8_t bitPosition, bool value)
+void Simulator::setSimdataFlag(SimDataFlag flag, bool value)
 {
+    uint8_t bitPosition = static_cast<uint8_t>(flag);
+
     if (value)
     {
         simDataFlags |= (1 << bitPosition);
@@ -337,7 +339,7 @@ void Simulator::setSimdataFlag(uint8_t bitPosition, bool value)
 // process received data from SimConnect and prepare for joystick
 void Simulator::processNewData()
 {
-    setSimdataFlag(1, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
+    setSimdataFlag(SimDataFlag::AutopilotOn, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
 
     simDataCalculated.normalizedSpeed = (simDataRead.estimatedCruiseSpeed != 0) ? simDataRead.indicatedAirspeed / simDataRead.estimatedCruiseSpeed : 0;
 }

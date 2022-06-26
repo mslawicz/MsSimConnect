@@ -9,6 +9,12 @@
 #include <set>
 #include <vector>
 
+enum class SimDataFlag : uint8_t
+{
+    SimDataValid,
+    AutopilotOn
+};
+
 class Simulator
 {
 public:
@@ -30,7 +36,7 @@ private:
     void dataRequest(void);     // requests data from SimConnect server
     void requestDataOnSimObject(SIMCONNECT_DATA_REQUEST_ID  RequestID, SIMCONNECT_DATA_DEFINITION_ID  DefineID, SIMCONNECT_PERIOD  Period);
     void procesSimData(SIMCONNECT_RECV* pData);     // processes data received from SimConnect server
-    void setSimdataFlag(uint8_t bitPosition, bool value);
+    void setSimdataFlag(SimDataFlag flag, bool value);
     void processNewData();  // process received data from SimConnect and prepare for joystick
     HANDLE hSimConnect{ nullptr };
     const uint8_t ShortSleep = 1;
