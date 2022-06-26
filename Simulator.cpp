@@ -60,8 +60,6 @@ void Simulator::handler(void)
             (std::chrono::duration<double>(std::chrono::steady_clock::now() - lastJoystickSendTime).count() > 0.01))
         {
             uint8_t* pBuffer = joySendBuffer;
-            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsNumHandlePositions), pBuffer); // number of flaps positions
-            placeData<uint8_t>(static_cast<uint8_t>(simDataRead.flapsHandleIndex), pBuffer);    // current flaps index
             placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);    // yoke X reference position
             placeData<uint32_t>(simDataFlags, pBuffer);     // 32-bit data flags
             placeData<float>(static_cast<float>(simDataCalculated.normalizedSpeed), pBuffer);   // aircraft indicated speed referenced to cruise speed
@@ -69,6 +67,7 @@ void Simulator::handler(void)
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyY), pBuffer);   // rotation acceleration body Y for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyZ), pBuffer);   // rotation acceleration body Z for yoke forces
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.engineType), pBuffer);     // enumerated engine type
+            placeData<float>(static_cast<float>(simDataCalculated.flapsPosPct), pBuffer);  // percentage of flaps deflection
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -163,13 +162,13 @@ void Simulator::subscribe(void)
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "PROP MAX RPM PERCENT:2", "Percent");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ESTIMATED CRUISE SPEED", "Knots");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "AIRSPEED INDICATED", "Knots");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS NUM HANDLE POSITIONS", "Number");
-    addToDataDefinition(hSimConnect, SimDataReadDefinition, "FLAPS HANDLE INDEX", "Number");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "AUTOPILOT MASTER", "Bool");        // autopilot master on/off
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY X", "Radians per second squared");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY Y", "Radians per second squared");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ROTATION ACCELERATION BODY Z", "Radians per second squared");
     addToDataDefinition(hSimConnect, SimDataReadDefinition, "ENGINE TYPE", "Enum");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "TRAILING EDGE FLAPS LEFT PERCENT", "Percent Over 100");
+    addToDataDefinition(hSimConnect, SimDataReadDefinition, "TRAILING EDGE FLAPS RIGHT PERCENT", "Percent Over 100");
 
     // simconnect variables for testing
     addToDataDefinition(hSimConnect, SimDataTestDefinition, "YOKE Y POSITION", "Position");
@@ -308,13 +307,13 @@ void Simulator::displaySimData()
     std::cout << "propeller 2 % = " << simDataRead.prop2Percent << std::endl;
     std::cout << "estimated cruise speed [kts] = " << simDataRead.estimatedCruiseSpeed << std::endl;
     std::cout << "indicated airspeed [kts] = " << simDataRead.indicatedAirspeed << std::endl;
-    std::cout << "number of flaps positions = " << simDataRead.flapsNumHandlePositions << std::endl;
-    std::cout << "flaps lever position = " << simDataRead.flapsHandleIndex << std::endl;
     std::cout << "autopilot master = " << simDataRead.autopilotMaster << std::endl;
     std::cout << "rotation acc body X Y Z = " << simDataRead.rotationAccBodyX <<", " << simDataRead.rotationAccBodyY << ", " << simDataRead.rotationAccBodyZ << std::endl;
     std::cout << "engine type = " << simDataRead.engineType << std::endl;
     std::cout << "========== SimDataWrite ==========" << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
+    std::cout << "normalized speed % = " << simDataCalculated.normalizedSpeed << std::endl;
+    std::cout << "flaps % = " << simDataCalculated.flapsPosPct << std::endl;
 }
 
 // display current data received from Joystick
@@ -343,6 +342,6 @@ void Simulator::setSimdataFlag(SimDataFlag flag, bool value)
 void Simulator::processNewData()
 {
     setSimdataFlag(SimDataFlag::AutopilotOn, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
-
     simDataCalculated.normalizedSpeed = (simDataRead.estimatedCruiseSpeed != 0) ? simDataRead.indicatedAirspeed / simDataRead.estimatedCruiseSpeed : 0;
+    simDataCalculated.flapsPosPct = (simDataRead.flapsLeftPosPct > simDataRead.flapsRightPosPct) ? simDataRead.flapsLeftPosPct : simDataRead.flapsRightPosPct;
 }

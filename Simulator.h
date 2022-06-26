@@ -65,13 +65,13 @@ private:
         double prop2Percent;
         double estimatedCruiseSpeed;
         double indicatedAirspeed;
-        double flapsNumHandlePositions; // number of flaps positions excluding position 0 (extracted)
-        double flapsHandleIndex;        // flaps lever position 0..flapsNumHandlePositions
         double autopilotMaster;         // is autopilot on?
         double rotationAccBodyX;        // rotation acceleration body X
         double rotationAccBodyY;        // rotation acceleration body Y
         double rotationAccBodyZ;        // rotation acceleration body Z
         double engineType;              // enumerated engine type
+        double flapsLeftPosPct;         // percentage of left flaps deflection
+        double flapsRightPosPct;        // percentage of right flaps deflection
     };
     struct JoyData  // data received from joystick device
     {
@@ -94,6 +94,7 @@ private:
     struct SimDataCalculated    // calculated simulation data
     {
         double normalizedSpeed;     // speed referenced to cruise speed
+        double flapsPosPct;         // percentage of flaps deflection
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };   // pointer to USB HID joystick device
