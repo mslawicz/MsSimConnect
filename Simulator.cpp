@@ -68,7 +68,7 @@ void Simulator::handler(void)
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyZ), pBuffer);   // rotation acceleration body Z for yoke forces
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.engineType), pBuffer);     // enumerated engine type
             placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.flapsPosPct, 0U, 0xFFU), pBuffer);  // percentage of flaps deflection <0,255>
-            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.propellerPct, 0U, 0xFFU), pBuffer);  // percentage of max propeller rpm <0,255>
+            placeData<uint8_t>(scale<double, uint8_t>(0, 100.0, simDataCalculated.propellerPct, 0U, 0xFFU), pBuffer);  // percentage of max propeller rpm <0,255>
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
