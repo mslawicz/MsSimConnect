@@ -15,3 +15,20 @@ template<typename T> T parseData(uint8_t*& pBuffer)
     pBuffer += sizeof(T);
     return data;
 }
+
+template<typename iType, typename oType> oType scale(iType iMin, iType iMax, iType input, oType oMin, oType oMax, bool limit = true)
+{
+    if (limit)
+    {
+        if (input < iMin)
+        {
+            input = iMin;
+        }
+        else if (input > iMax)
+        {
+            input = iMax;
+        }
+    }
+    auto result = static_cast<oType>(1.0 * (input - iMin) / (iMax - iMin) * (oMax - oMin) + oMin);
+    return result;
+}

@@ -62,13 +62,13 @@ void Simulator::handler(void)
             uint8_t* pBuffer = joySendBuffer;
             placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);    // yoke X reference position
             placeData<uint32_t>(simDataFlags, pBuffer);     // 32-bit data flags
-            placeData<float>(static_cast<float>(simDataCalculated.normalizedSpeed), pBuffer);   // aircraft indicated speed referenced to cruise speed
+            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.normalizedSpeed, 0U, 0xFFU), pBuffer);  // aircraft indicated speed referenced to cruise speed <0,255>
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyX), pBuffer);   // rotation acceleration body X for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyY), pBuffer);   // rotation acceleration body Y for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyZ), pBuffer);   // rotation acceleration body Z for yoke forces
             placeData<uint8_t>(static_cast<uint8_t>(simDataRead.engineType), pBuffer);     // enumerated engine type
-            placeData<float>(static_cast<float>(simDataCalculated.flapsPosPct), pBuffer);  // percentage of flaps deflection
-            placeData<float>(static_cast<float>(simDataCalculated.propellerPct), pBuffer);  // percentage of max propeller rpm
+            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.flapsPosPct, 0U, 0xFFU), pBuffer);  // percentage of flaps deflection <0,255>
+            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.propellerPct, 0U, 0xFFU), pBuffer);  // percentage of max propeller rpm <0,255>
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
