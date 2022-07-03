@@ -58,7 +58,7 @@ private:
     {
         double aileronPosition;     // used for yoke X zero position calculations (w/o vibratiobs)
         double yokeXindicator;      // used for yoke X zero position calculations (w/o vibratiobs)
-        double elevatorTrimPCT;
+        double elevatorTrimPCT;     //used for yoke Y reference position
         double rudderTrimPCT;
         double numberOfEngines;
         double prop1Percent;
