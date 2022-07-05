@@ -72,6 +72,8 @@ private:
         double engineType;              // enumerated engine type
         double flapsLeftPosPct;         // percentage of left flaps deflection
         double flapsRightPosPct;        // percentage of right flaps deflection
+        double windshieldWindVelocity;  // windshield wind velocity in kts
+        double designTakeoffSpeed;      // aircraft design takeoff speed in kts
     };
     struct JoyData  // data received from joystick device
     {
@@ -96,6 +98,7 @@ private:
         double normalizedSpeed;     // speed referenced to cruise speed
         double flapsPosPct;         // percentage of flaps deflection
         double propellerPct;        // percentage of propeller max rpm
+        double takeoffSpeedPct;     // percentage of current windshield velocity relative to design takeoff speed (may be >1)
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };   // pointer to USB HID joystick device
