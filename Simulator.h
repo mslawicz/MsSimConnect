@@ -95,10 +95,11 @@ private:
     };
     struct SimDataCalculated    // calculated simulation data
     {
-        double normalizedSpeed;     // speed referenced to cruise speed
+        double wingAirSpeed;        // speed referenced to cruise speed
         double flapsPosPct;         // percentage of flaps deflection
         double propellerPct;        // percentage of propeller max rpm
-        double takeoffSpeedPct;     // percentage of current windshield velocity relative to design takeoff speed (may be >1)
+        double stabilizerAirSpeed;  // speed / windshield speed referenced to cruise speed
+        double stabTakeoffAirSpeed; // speed / windshield speed referenced to design takeoff speed
     };
     std::set<DWORD> dwIDs;  // set of received SimConnect dwIDs
     USBHID* pJoystickLink{ nullptr };   // pointer to USB HID joystick device

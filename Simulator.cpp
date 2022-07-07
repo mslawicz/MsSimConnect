@@ -62,7 +62,7 @@ void Simulator::handler(void)
             uint8_t* pBuffer = joySendBuffer;
             placeData<float>(static_cast<float>(simDataRead.aileronPosition - simDataRead.yokeXindicator), pBuffer);    // yoke X reference position
             placeData<uint32_t>(simDataFlags, pBuffer);     // 32-bit data flags
-            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.normalizedSpeed, 0U, 0xFFU), pBuffer);  // aircraft indicated speed referenced to cruise speed <0,255>
+            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.wingAirSpeed, 0U, 0xFFU), pBuffer);  // aircraft indicated speed referenced to cruise speed <0,255>
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyX), pBuffer);   // rotation acceleration body X for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyY), pBuffer);   // rotation acceleration body Y for yoke forces
             placeData<float>(static_cast<float>(simDataRead.rotationAccBodyZ), pBuffer);   // rotation acceleration body Z for yoke forces
@@ -70,7 +70,8 @@ void Simulator::handler(void)
             placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.flapsPosPct, 0U, 0xFFU), pBuffer);  // percentage of flaps deflection <0,255>
             placeData<uint8_t>(scale<double, uint8_t>(0, 100.0, simDataCalculated.propellerPct, 0U, 0xFFU), pBuffer);  // percentage of max propeller rpm <0,255>
             placeData<float>(static_cast<float>(simDataRead.elevatorTrimPCT), pBuffer);   // for yoke Y reference position
-            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.takeoffSpeedPct, 0U, 0xFFU), pBuffer);  //percentage of takeoff speed <0,255>
+            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.stabilizerAirSpeed, 0U, 0xFFU), pBuffer);  // aircraft stabilizer indicated speed referenced to cruise speed <0,255>
+            placeData<uint8_t>(scale<double, uint8_t>(0, 1.0, simDataCalculated.stabTakeoffAirSpeed, 0U, 0xFFU), pBuffer);  // aircraft stabilizer indicated speed referenced to takeoff speed <0,255>
             placeData<char>('S', pBuffer);
             placeData<char>('I', pBuffer);
             placeData<char>('M', pBuffer);
@@ -320,10 +321,11 @@ void Simulator::displaySimData()
     std::cout << "design takeoff speed = " << simDataRead.designTakeoffSpeed << std::endl;
     std::cout << "========== SimDataWrite ==========" << std::endl;
     std::cout << "========== calculated data ==========" << std::endl;
-    std::cout << "normalized speed % = " << simDataCalculated.normalizedSpeed << std::endl;
+    std::cout << "normalized wing airspeed % = " << simDataCalculated.wingAirSpeed << std::endl;
+    std::cout << "normalized stabilizer airspeed % = " << simDataCalculated.stabilizerAirSpeed << std::endl;
+    std::cout << "normalized stabilizer airspeed ref to takeoff speed % = " << simDataCalculated.stabTakeoffAirSpeed << std::endl;
     std::cout << "flaps % = " << simDataCalculated.flapsPosPct << std::endl;
     std::cout << "propeller % = " << simDataCalculated.propellerPct << std::endl;
-    std::cout << "takeoff speed % = " << simDataCalculated.takeoffSpeedPct << std::endl;
 }
 
 // display current data received from Joystick
@@ -352,8 +354,10 @@ void Simulator::setSimdataFlag(SimDataFlag flag, bool value)
 void Simulator::processNewData()
 {
     setSimdataFlag(SimDataFlag::AutopilotOn, simDataRead.autopilotMaster != 0);    //flag of autopilot master on/off
-    simDataCalculated.normalizedSpeed = (simDataRead.estimatedCruiseSpeed != 0) ? simDataRead.indicatedAirspeed / simDataRead.estimatedCruiseSpeed : 0;
+    simDataCalculated.wingAirSpeed = (simDataRead.estimatedCruiseSpeed != 0) ? simDataRead.indicatedAirspeed / simDataRead.estimatedCruiseSpeed : 0;
     simDataCalculated.flapsPosPct = (simDataRead.flapsLeftPosPct > simDataRead.flapsRightPosPct) ? simDataRead.flapsLeftPosPct : simDataRead.flapsRightPosPct;
     simDataCalculated.propellerPct = (simDataRead.prop1Percent > simDataRead.prop2Percent) ? simDataRead.prop1Percent : simDataRead.prop2Percent;
-    simDataCalculated.takeoffSpeedPct = simDataRead.windshieldWindVelocity / simDataRead.designTakeoffSpeed;
+    double fuselageAirSpeed = simDataRead.indicatedAirspeed > simDataRead.windshieldWindVelocity ? simDataRead.indicatedAirspeed : simDataRead.windshieldWindVelocity;
+    simDataCalculated.stabilizerAirSpeed = (simDataRead.estimatedCruiseSpeed != 0) ? fuselageAirSpeed / simDataRead.estimatedCruiseSpeed : 0;
+    simDataCalculated.stabTakeoffAirSpeed = (simDataRead.designTakeoffSpeed != 0) ? fuselageAirSpeed / simDataRead.designTakeoffSpeed : 0;
 }
